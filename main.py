@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import sys
+
+from test import test_image_load_and_resize, test_dirlist
 
 
 def welcome_msg():
@@ -19,11 +20,14 @@ def welcome_msg():
     print("Project main library version:")
     print("OpenCV: " + str(cv2.__version__))
     print("Numpy: " + str(np.__version__))
-    print("Pandas: " + str(pd.__version__))
+    print("Pandas: " + str(pd.__version__), end='\n\n\n')
 
 
 def main(argv):
     welcome_msg()
+
+    test_image_load_and_resize()
+    test_dirlist()
 
 
 if __name__ == '__main__':
