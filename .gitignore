@@ -140,4 +140,6 @@ venv.bak/
 .mypy_cache/
 
 # Data folder
-/data/
+/data/ignored/
+/data/testing/
+/data/training/

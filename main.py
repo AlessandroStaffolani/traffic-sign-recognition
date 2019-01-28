@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import sys
 
-from test import test_image_load_and_resize, test_dirlist
+from src.controllers.MenuController import MenuController
 
 
 def welcome_msg():
@@ -20,14 +20,24 @@ def welcome_msg():
     print("Project main library version:")
     print("OpenCV: " + str(cv2.__version__))
     print("Numpy: " + str(np.__version__))
-    print("Pandas: " + str(pd.__version__), end='\n\n\n')
+    print("Pandas: " + str(pd.__version__), end='\n\n')
 
 
 def main(argv):
     welcome_msg()
 
-    test_image_load_and_resize()
-    test_dirlist()
+    menu = MenuController('data/train_data_processed/train_46x46.csv', 'data/training/images')
+
+    # preprocessor = Preprocessor('data/training/images/00000', 'data/train_data_processed/train_46x46.csv',
+    #                             labels=labels)
+    #
+    # preprocessor.set_current_label('00000')
+    #
+    # while preprocessor.process_next():
+    #     status = preprocessor.status()
+    #     print('Image processed: ' + str(status['image_processed']) + '/' + str(status['image_to_process']))
+    #
+    # preprocessor.save_results()
 
 
 if __name__ == '__main__':
