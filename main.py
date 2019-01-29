@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import sys
+
+from src.controllers.MenuController import MenuController
 
 
 def welcome_msg():
@@ -19,11 +20,17 @@ def welcome_msg():
     print("Project main library version:")
     print("OpenCV: " + str(cv2.__version__))
     print("Numpy: " + str(np.__version__))
-    print("Pandas: " + str(pd.__version__))
+    print("Pandas: " + str(pd.__version__), end='\n\n')
 
 
 def main(argv):
     welcome_msg()
+
+    menu = MenuController('data/train_data_processed/train_46x46.csv', 'data/test_data_processed/test_46x46.csv',
+                          'data/training/images', 'data/testing/images')
+
+    # df = pd.read_csv('data/test_data_processed/test_46x46.csv')
+    # print(df.info())
 
 
 if __name__ == '__main__':
