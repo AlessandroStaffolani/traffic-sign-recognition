@@ -12,9 +12,9 @@ class Preprocessor:
 
     def __init__(self, save_path, image_shape=46, labels=None, image_ext='ppm'):
         """
-        Image shape should be a squared image
+        Preprocessor for training images
         :param save_path: path where will be saved the output of the preprocessor
-        :param image_shape: size at which each image will be resized
+        :param image_shape: size at which each image will be resized. Image shape should be a squared image
         :param labels: list containing all the possible labels for the images
         :param image_ext: image file extension
         """
@@ -35,7 +35,7 @@ class Preprocessor:
         self.total_images_processed = 0
 
     def init(self):
-        logging.debug('init called')
+        logging.debug('init called for training')
         if self.data_folder is None:
             print('data_folder attribute is None! Should be a string')
             logging.warning('data_folder attribute is None')
@@ -119,5 +119,73 @@ class Preprocessor:
         self.dataframe.loc[self.images_processed] = [image] + label
 
     def save_results(self):
-        self.dataframe.to_csv(index=False, mode='a', path_or_buf=self.save_path, header=False)
-        logging.info('saved into ' + str(self.save_path) + ' ' + str(len(self.dataframe)) + ' images')
+        if self.dataframe is not None:
+            self.dataframe.to_csv(index=False, mode='a', path_or_buf=self.save_path, header=False)
+            logging.info('saved into ' + str(self.save_path) + ' ' + str(len(self.dataframe)) + ' images')
+
+
+class PreprocessorTest(Preprocessor):
+
+    def __init__(self, save_path, batch_size=1000):
+        super().__init__(save_path)
+        self.batch_size = batch_size
+        self.batch_break_count = 0
+
+    def init(self):
+        logging.debug('init called for testing')
+        if self.data_folder is None:
+            print('data_folder attribute is None! Should be a string')
+            logging.warning('data_folder attribute is None')
+            return False
+
+        try:
+            # Get all the images from data_folder
+            self.images_to_process = listdir(self.data_folder)
+        except FileNotFoundError:
+            print('Folder "' + self.data_folder + ' not found')
+            logging.error('Folder "' + self.data_folder + ' not found')
+            return False
+
+        # Sort the image names and filter to only those with image_ext in the name
+        self.images_to_process.sort()
+        self.images_to_process = list(filter(lambda file: self.image_ext in file, self.images_to_process))
+
+        # Create the list with all the columns of the dataframe that will be saved on csv
+        columns = ['image']
+
+        self.dataframe = pd.DataFrame(columns=columns)
+
+        return True
+
+    def process_next(self):
+        next_image_name = self.get_next()
+        if next_image_name is None:
+            logging.warning('next_image_name is None')
+            return False
+        else:
+            # load image
+            next_image = load_image(self.data_folder + '/' + next_image_name)
+            resized = resize_image(next_image, (self.image_shape, self.image_shape))
+
+            self.add_to_dataframe(resized)
+
+            # update image processed
+            self.images_processed += 1
+            self.total_images_processed += 1
+            self.batch_break_count += 1
+
+            if self.batch_break_count == self.batch_size:
+                self.save_batch_and_reinit_df()
+
+            logging.debug(str(next_image_name) + ' preprocessed and added on dataframe')
+
+            return True
+
+    def add_to_dataframe(self, image, label=None):
+        self.dataframe.loc[self.images_processed] = [image]
+
+    def save_batch_and_reinit_df(self):
+        self.save_results()
+        del self.dataframe
+        self.dataframe = self.dataframe = pd.DataFrame(columns=['image'])
+        self.batch_break_count = 0

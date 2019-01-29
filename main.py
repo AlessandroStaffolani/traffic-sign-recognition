@@ -26,18 +26,11 @@ def welcome_msg():
 def main(argv):
     welcome_msg()
 
-    menu = MenuController('data/train_data_processed/train_46x46.csv', 'data/training/images')
+    menu = MenuController('data/train_data_processed/train_46x46.csv', 'data/test_data_processed/test_46x46.csv',
+                          'data/training/images', 'data/testing/images')
 
-    # preprocessor = Preprocessor('data/training/images/00000', 'data/train_data_processed/train_46x46.csv',
-    #                             labels=labels)
-    #
-    # preprocessor.set_current_label('00000')
-    #
-    # while preprocessor.process_next():
-    #     status = preprocessor.status()
-    #     print('Image processed: ' + str(status['image_processed']) + '/' + str(status['image_to_process']))
-    #
-    # preprocessor.save_results()
+    # df = pd.read_csv('data/test_data_processed/test_46x46.csv')
+    # print(df.info())
 
 
 if __name__ == '__main__':
