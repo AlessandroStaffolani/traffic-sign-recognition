@@ -7,6 +7,10 @@ def load_image(image_name, cmap=1):
     return cv2.imread(image_name, cmap)
 
 
+def resize_image(image, size):
+    return cv2.resize(image, size)
+
+
 def show_image(image, image_name, image_category='', use_plt=False):
     if len(image_category) == 0:
         title = 'Image: ' + image_name
