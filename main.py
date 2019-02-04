@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import pandas as pd
+import keras
 import sys
 
 from src.controllers.MenuController import MenuController
@@ -20,7 +21,8 @@ def welcome_msg():
     print("Project main library version:")
     print("OpenCV: " + str(cv2.__version__))
     print("Numpy: " + str(np.__version__))
-    print("Pandas: " + str(pd.__version__), end='\n\n')
+    print("Pandas: " + str(pd.__version__))
+    print("Keras: " + str(keras.__version__), end='\n\n')
 
 
 def main(argv):
