@@ -1,8 +1,8 @@
+import sys
 import cv2
 import numpy as np
 import pandas as pd
 import keras
-import sys
 
 from src.controllers.MenuController import MenuController
 
