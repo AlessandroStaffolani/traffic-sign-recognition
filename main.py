@@ -28,10 +28,13 @@ def welcome_msg():
 def main(argv):
     welcome_msg()
 
-    menu = MenuController('data/train_data_processed/train_46x46.csv', 'data/test_data_processed/test_46x46.csv',
-                          'data/training/images', 'data/testing/images')
+    train_path_out = 'data/train_data_processed/train_46x46.csv'
+    test_path_out = 'data/test_data_processed/test_46x46.csv'
 
-    # df = pd.read_csv('data/test_data_processed/test_46x46.csv')
+    menu = MenuController(train_path_out, test_path_out, 'data/training/images', 'data/testing/images')
+
+    # df = pd.read_csv(train_path_out, nrows=100)
+    # df.to_csv('data/train_data_processed/train_46x46_100.csv', index=False, header=False)
     # print(df.info())
 
 
