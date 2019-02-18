@@ -7,6 +7,7 @@ import numpy as np
 
 from src.Cnn import Cnn
 from src.Dataset import Dataset
+from src.utility.preprocessor_utility import preprocess_image
 
 
 def test_image_load_and_resize():
@@ -36,23 +37,24 @@ def test_cnn():
 
 def test_dataset():
     labels = get_labels(43)
-    dataset = Dataset('data/train_data_processed/train_46x46_100.csv', chunk_size=10, labels=labels)
+    dataset = Dataset('data/training/images', preprocess_image, chunk_size=1000, labels=labels)
 
-    generator = dataset.get_generator()
-    for df in generator:
-        images = df[0]
-        labels = df[1]
-        print(type(images[0]))
+    dataframe = dataset.get_images()
 
+    for row in dataframe:
+        images, labels = row[0], row[1]
+        print(images.shape, end='\t')
+        print(labels.shape, end='\n\n---------------\n')
 
+    # images = next(dataframe)
+    # for img in images:
+    #     show_image(img, 'image')
 
 
 def main(argv):
     # test_cnn()
 
-    # test_dataset()
-    data = np.loadtxt('data/train_data_processed/train_46x46_100.csv', delimiter=',')
-    print(data.shape)
+    test_dataset()
 
 
 if __name__ == '__main__':
