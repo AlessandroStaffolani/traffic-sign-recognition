@@ -15,14 +15,16 @@ class Dataset:
     def __init__(self, folder_path, image_preprocessing, image_shape=46, chunk_size=1000, labels=None, image_extension='ppm'):
         self._folder_path = folder_path
         self.image_preprocessing = image_preprocessing
-        self.image_shape = image_shape
-        self._chunk_size = chunk_size
+        self.image_shape = int(image_shape)
+        self._chunk_size = int(chunk_size)
         self.image_extension = image_extension
         self.labels = labels
 
     def get_images(self):
         directories = get_directory_files(self._folder_path)
         directories.sort()
+
+        total_count = 0
 
         # Iterate through image folders
         for directory in directories:
@@ -63,6 +65,10 @@ class Dataset:
                 # Update indexes
                 count += chunk
                 image_processed += chunk
+                total_count += chunk
+
+                logging.info("Processed a chunk of " + str(chunk) + " images")
+                logging.info("Total images processed until now: " + str(total_count))
 
                 # Yield images and labels
                 np_img_array = np.array(img_array)

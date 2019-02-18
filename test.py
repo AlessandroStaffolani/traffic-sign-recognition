@@ -1,5 +1,4 @@
 from src.utility.image_utility import load_image, show_image
-from src.Preprocessor import Preprocessor
 from src.utility.file_utility import get_directory_files
 from src.utility.dataset_utility import get_labels
 import sys
@@ -8,19 +7,6 @@ import numpy as np
 from src.Cnn import Cnn
 from src.Dataset import Dataset
 from src.utility.preprocessor_utility import preprocess_image
-
-
-def test_image_load_and_resize():
-    image = load_image('data/training/images/00000/00000_00000.ppm')
-    print(image.shape)
-    print(image)
-    show_image(image, '00000_00000.ppm', '00000')
-
-    preprocessor = Preprocessor()
-    resized = preprocessor.resize_image(image)
-    print(resized.shape)
-    print(resized)
-    show_image(resized, 'resized 00000_00000.ppm', '00000')
 
 
 def test_dirlist():
