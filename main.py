@@ -30,8 +30,7 @@ def main(argv):
 
     menu = MenuController('data/training/images', 'data/testing/images')
 
-    # df = pd.read_csv(train_path_out, nrows=100)
-    # df.to_csv('data/train_data_processed/train_46x46_100.csv', index=False, header=False)
+    # df = pd.read_csv('data/training/training_table.csv')
     # print(df.info())
 
 

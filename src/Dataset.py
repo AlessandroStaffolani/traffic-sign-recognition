@@ -110,5 +110,37 @@ class Dataset:
                     np_label_array = np.array(labels_array)
                     yield np_img_array.astype(np.uint8), np_label_array.astype(np.uint8)
 
+    def get_generators_no_chunk(self):
+        directories = get_directory_files(self._folder_path)
+        directories.sort()
+
+        while True:
+            # Iterate through image folders
+            for directory in directories:
+                current_directory = directory
+                path_label_folder = self._folder_path + '/' + current_directory
+
+                images = [image for image in get_directory_files(path_label_folder) if
+                          self.image_extension in image]
+
+                for img in images:
+                    img_array = list()
+                    labels_array = list()
+
+                    image = load_image(path_label_folder + '/' + img)
+
+                    preprocessed = self.image_preprocessing(image, (self.image_shape, self.image_shape))
+                    # Get image label
+                    labels = get_image_label(current_directory, self.labels)
+
+                    # append image and label to dataframe
+                    img_array.append(preprocessed)
+                    labels_array.append(labels)
+
+                    # Yield images and labels
+                    np_img_array = np.array(img_array)
+                    np_label_array = np.array(labels_array)
+                    yield np_img_array.astype(np.uint8), np_label_array.astype(np.uint8)
+
     def set_chunk_size(self, chunk):
         self._chunk_size = chunk

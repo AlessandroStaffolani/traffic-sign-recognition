@@ -48,7 +48,8 @@ class Cnn:
                        batch_size=batch_size)
 
     def fit_generator(self, generator, steps_per_epoch=1000, epochs=10):
-        self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs))
+        self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
+                                 use_multiprocessing=True)
 
     def evaluate(self, test_data, test_labels, batch_size=100):
         self.model.evaluate(test_data, test_labels, batch_size=batch_size)

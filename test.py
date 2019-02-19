@@ -7,6 +7,7 @@ import numpy as np
 from src.Cnn import Cnn
 from src.Dataset import Dataset
 from src.utility.preprocessor_utility import preprocess_image
+from src.utility.dataset_utility import create_traing_data_table
 
 
 def test_dirlist():
@@ -37,10 +38,15 @@ def test_dataset():
     #     show_image(img, 'image')
 
 
+def test_dataset_table_creation():
+    create_traing_data_table('data/training/images', 'data/training/training_table.csv')
+
+
 def main(argv):
     # test_cnn()
 
-    test_dataset()
+    # test_dataset()
+    test_dataset_table_creation()
 
 
 if __name__ == '__main__':

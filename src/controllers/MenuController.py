@@ -3,6 +3,7 @@ from time import time
 from src.utility.dataset_utility import get_labels
 from src.utility.file_utility import get_directory_files, remove_file
 from src.utility.preprocessor_utility import preprocess_image
+from src.utility.dataset_utility import create_traing_data_table
 
 from src.Dataset import Dataset
 from src.Cnn import Cnn
@@ -33,6 +34,12 @@ class MenuController:
 
     def handle_menu_action(self):
         if self.current_action == 1:
+            # Prepare datatable
+            folder = ask_param_with_default('Training images folder', self.image_folder_training)
+            output = ask_param_with_default('Output file path', 'data/training/training_table.csv')
+            create_traing_data_table(folder, output)
+
+        elif self.current_action == 2:
             # Train all images
 
             folder = ask_param_with_default('Training images folder', self.image_folder_training)
@@ -41,12 +48,12 @@ class MenuController:
             image_shape = ask_param_with_default('Dimension of all images, must be the same vertically and horizontally', self.image_shape)
 
             self.train_all_images(folder, batch_size, epochs, image_shape)
-        elif self.current_action == 2:
+        elif self.current_action == 3:
             # save model
             model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
             self.model.save_json_model(model_out)
 
-        elif self.current_action == 3:
+        elif self.current_action == 4:
             # load model
             model_path = ask_param_with_default('Location of the saved model', 'model/model.json')
             self.model.load_json_model(model_path)
@@ -94,9 +101,10 @@ class MenuController:
 
 def print_menu():
     print("\n\nPossible actions: (select the action)", end='\n\n')
-    print('1) Train all images')
-    print('2) Save trained model')
-    print('3) Load existing model from json')
+    print('1) Prepare training datatable')
+    print('2) Train all images')
+    print('3) Save trained model')
+    print('4) Load existing model from json')
     print('\n-- System --------------')
     print('8) Clean log folder')
     print('9) Exit', end='\n\n')
