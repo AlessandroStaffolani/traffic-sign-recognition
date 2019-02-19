@@ -1,12 +1,14 @@
 import keras
+import json
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, Flatten
+from keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
+from keras.models import model_from_json
 
 
 class Cnn:
 
-    def __init__(self, num_layers=2, nodes_per_layer=100, layer_activation='relu', num_output=3,
-                 output_activation='softmax', kernel_size=3, input_shape=(48, 48, 3)):
+    def __init__(self, num_layers=2, nodes_per_layer=100, layer_activation='relu', num_output=43,
+                 output_activation='softmax', kernel_size=3, input_shape=(46, 46, 3)):
         self.model = None
         self.num_layers = num_layers
         self.nodes_per_layer = nodes_per_layer
@@ -16,24 +18,23 @@ class Cnn:
         self.kernel_size = kernel_size
         self.input_shape = input_shape
 
-        self._create_model()
-
-    def _create_model(self):
+    def create_model(self):
         self.model = Sequential()
 
-        # Add Convolutional layers
-        for layer in range(self.num_layers):
-            nodes = get_value_if_list_or_int(self.nodes_per_layer, layer)
-            activation = get_value_if_list_or_int(self.layers_activation, layer)
-            kernel_size = get_value_if_list_or_int(self.kernel_size, layer)
-            if layer == 0:
-                # First layer need input_shape
-                self.model.add(
-                    Conv2D(nodes, activation=activation, kernel_size=kernel_size, input_shape=self.input_shape))
-            else:
-                self.model.add(Conv2D(nodes, activation=activation, kernel_size=kernel_size))
+        self.model.add(
+            Conv2D(filters=32, kernel_size=self.kernel_size, activation=self.layers_activation,
+                   strides=(1, 1), padding='same', input_shape=self.input_shape, data_format='channels_last'))
 
-        # Add Flatten layer to translate between the image processing and classification part
+        self.model.add(MaxPool2D(pool_size=(2, 2), strides=2))
+
+        self.model.add(Dropout(0.2))
+
+        self.model.add(
+            Conv2D(filters=64, kernel_size=self.kernel_size, activation=self.layers_activation, strides=(1, 1),
+                   padding='valid'))
+
+        self.model.add(MaxPool2D(pool_size=(2, 2), strides=2))
+
         self.model.add(Flatten())
 
         # Add the output layer
@@ -43,10 +44,26 @@ class Cnn:
         self.model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
     def fit(self, train_data, train_labels, validation_split=0.25, epochs=10, batch_size=100):
-        self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs, batch_size=batch_size)
+        self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs,
+                       batch_size=batch_size)
+
+    def fit_generator(self, generator, steps_per_epoch=1000, epochs=10):
+        self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
+                                 use_multiprocessing=True)
 
     def evaluate(self, test_data, test_labels, batch_size=100):
         self.model.evaluate(test_data, test_labels, batch_size=batch_size)
+
+    def save_json_model(self, out_path):
+        json_model = self.model.to_json()
+        with open(out_path, 'w') as outfile:
+            outfile.write(json_model)
+
+    def load_json_model(self, file):
+        json_file = open(file, 'r')
+        loaded_model_json = json_file.read()
+        json_file.close()
+        self.model = model_from_json(loaded_model_json)
 
 
 def get_value_if_list_or_int(value, index):

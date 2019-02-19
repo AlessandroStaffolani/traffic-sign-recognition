@@ -1,24 +1,28 @@
 from time import time
-from src.Preprocessor import Preprocessor, PreprocessorTest
-from src.utility.system_utility import progress_bar
+
 from src.utility.dataset_utility import get_labels
 from src.utility.file_utility import get_directory_files, remove_file
+from src.utility.preprocessor_utility import preprocess_image
+from src.utility.dataset_utility import create_traing_data_table
+
+from src.Dataset import Dataset
+from src.Cnn import Cnn
 
 
 class MenuController:
 
-    def __init__(self, export_file_training, export_file_testing, image_folder_training, image_folder_testing,
-                 labels_count=43):
+    def __init__(self, image_folder_training, image_folder_testing, labels_count=43, batch_size=1000, epochs=10, image_shape=46, log_folder='log'):
         self.labels = get_labels(labels_count)
-        self.export_file_training = export_file_training
-        self.export_file_testing = export_file_testing
         self.image_folder_training = image_folder_training
         self.image_folder_testing = image_folder_testing
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.image_shape = image_shape
+        self.log_folder = log_folder
+        self.model = Cnn()
+        self.model_created = False
 
         self.current_action = 0  # Action selected by user on the menu
-
-        self.preprocessor = Preprocessor(self.export_file_training, labels=self.labels)
-        self.preprocessorTest = PreprocessorTest(self.export_file_testing)
 
         self._init()
 
@@ -30,29 +34,35 @@ class MenuController:
 
     def handle_menu_action(self):
         if self.current_action == 1:
-            # One label
-            label = input('Insert the label to process\n')
-            self.preprocess_one_label(self.image_folder_training + '/' + label, label)
+            # Prepare datatable
+            folder = ask_param_with_default('Training images folder', self.image_folder_training)
+            output = ask_param_with_default('Output file path', 'data/training/training_table.csv')
+            create_traing_data_table(folder, output)
 
         elif self.current_action == 2:
-            # All label
-            folder = input('Insert the folder path (' + self.image_folder_training + '):\n')
-            if folder != '':
-                self.image_folder_training = folder
+            # Train all images
 
-            self.preprocess_all_images()
+            folder = ask_param_with_default('Training images folder', self.image_folder_training)
+            batch_size = ask_param_with_default('Batch size to use for training', self.batch_size)
+            epochs = ask_param_with_default('Number of epochs for training', self.epochs)
+            image_shape = ask_param_with_default('Dimension of all images, must be the same vertically and horizontally', self.image_shape)
+
+            self.train_all_images(folder, batch_size, epochs, image_shape)
         elif self.current_action == 3:
-            # All test images
-            folder = input('Insert the folder path (' + self.image_folder_testing + '):\n')
-            if folder != '':
-                self.image_folder_testing = folder
+            # save model
+            model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
+            self.model.save_json_model(model_out)
 
-            self.preprocess_all_test_images()
+        elif self.current_action == 4:
+            # load model
+            model_path = ask_param_with_default('Location of the saved model', 'model/model.json')
+            self.model.load_json_model(model_path)
+            self.model.compile()
+            self.model_created = True
 
         elif self.current_action == 8:
-            # clean log and train
-            self.clean_log_and_train_folder()
-
+            # Clean log folder
+            self.clean_log_folder()
         elif self.current_action == 9:
             # Exit
             print("Goodbye")
@@ -60,67 +70,49 @@ class MenuController:
             # No action possible
             print("Possible actions are 1, 2, 9")
 
-    def preprocess_one_label(self, label_path, label_name):
-        self.preprocessor.clean()
-        self.preprocessor.set_data_folder(label_path)
-        if not self.preprocessor.init():
-            return
-
-        self.preprocessor.set_current_label(label_name)
-
-        while self.preprocessor.process_next():
-            status = self.preprocessor.status()
-            progress_bar(status['image_processed'], status['image_to_process'],
-                         'Images processed with label ' + label_name)
-
-        self.preprocessor.save_results()
-
-    def preprocess_all_images(self):
+    def train_all_images(self, folder, batch_size, epochs, image_shape):
         start = time()
-        label_names = get_directory_files(self.image_folder_training)
-        label_names.sort()
-        for label in label_names:
-            self.preprocess_one_label(self.image_folder_training + '/' + label, label)
-            print('\n')
+        dataset = Dataset(folder, preprocess_image, image_shape, batch_size, self.labels)
+        dataframe_generator = dataset.get_images_generator()
 
+        if self.model_created is False:
+            self.model.create_model()
+            self.model.compile()
+
+        self.model.fit_generator(dataframe_generator, batch_size, epochs)
+
+        # count = 0
+        # for row in dataframe_generator:
+        #     images, labels = row[0], row[1]
+        #     count += images.shape[0]
+        #     print(images.shape, end='\t')
+        #     print(labels.shape, end='\n\n---------------\n')
         end = time()
-        print('The preprocessor has processed ' + str(self.preprocessor.total_images_processed) + ' images')
-        print('The execution time was ' + str(end - start) + ' seconds')
+        # print('\n\nImages processed: ' + str(count))
+        print('Processing time: ' + str(round(end - start, 2)) + ' seconds')
 
-    def preprocess_all_test_images(self):
-        start = time()
-        self.preprocessorTest.clean()
-        self.preprocessorTest.set_data_folder(self.image_folder_testing)
-        if not self.preprocessorTest.init():
-            return
-
-        while self.preprocessorTest.process_next():
-            status = self.preprocessorTest.status()
-            progress_bar(status['image_processed'], status['image_to_process'],
-                         'Images processed')
-
-        self.preprocessorTest.save_results()
-
-        end = time()
-        print('\nThe preprocessor has processed ' + str(self.preprocessorTest.total_images_processed) + ' images')
-        print('The execution time was ' + str(end - start) + ' seconds')
-
-    def clean_log_and_train_folder(self):
-        log_file = input('Log file (log/preprocessor.log)\n')
-        if log_file == '':
-            log_file = 'log/preprocessor.log'
-        train_file = input('Training output file (data/train_data_processed/train_46x46.csv)\n')
-        if train_file == '':
-            train_file = 'data/train_data_processed/train_46x46.csv'
-        if remove_file(log_file) and remove_file(train_file):
-            print('Clean completed')
+    def clean_log_folder(self):
+        log_files = get_directory_files(self.log_folder)
+        print()
+        for file in log_files:
+            remove_file(self.log_folder + '/' + file)
+        print('Log folder clean', end='\n')
 
 
 def print_menu():
     print("\n\nPossible actions: (select the action)", end='\n\n')
-    print('1) Process one class training images')
-    print('2) Process all training images')
-    print('3) Process all test images')
+    print('1) Prepare training datatable')
+    print('2) Train all images')
+    print('3) Save trained model')
+    print('4) Load existing model from json')
     print('\n-- System --------------')
-    print('8) Clean preprocessing log and output folder')
+    print('8) Clean log folder')
     print('9) Exit', end='\n\n')
+
+
+def ask_param_with_default(question, default, end=':\t'):
+    value = input(question + ' (' + str(default) + ')' + end)
+    if value == '':
+        return default
+    else:
+        return value
