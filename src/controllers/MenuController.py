@@ -5,6 +5,7 @@ from src.utility.file_utility import get_directory_files, remove_file
 from src.utility.preprocessor_utility import preprocess_image
 
 from src.Dataset import Dataset
+from src.Cnn import Cnn
 
 
 class MenuController:
@@ -17,6 +18,8 @@ class MenuController:
         self.epochs = epochs
         self.image_shape = image_shape
         self.log_folder = log_folder
+        self.model = Cnn()
+        self.model_created = False
 
         self.current_action = 0  # Action selected by user on the menu
 
@@ -38,6 +41,18 @@ class MenuController:
             image_shape = ask_param_with_default('Dimension of all images, must be the same vertically and horizontally', self.image_shape)
 
             self.train_all_images(folder, batch_size, epochs, image_shape)
+        elif self.current_action == 2:
+            # save model
+            model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
+            self.model.save_json_model(model_out)
+
+        elif self.current_action == 3:
+            # load model
+            model_path = ask_param_with_default('Location of the saved model', 'model/model.json')
+            self.model.load_json_model(model_path)
+            self.model.compile()
+            self.model_created = True
+
         elif self.current_action == 8:
             # Clean log folder
             self.clean_log_folder()
@@ -51,16 +66,22 @@ class MenuController:
     def train_all_images(self, folder, batch_size, epochs, image_shape):
         start = time()
         dataset = Dataset(folder, preprocess_image, image_shape, batch_size, self.labels)
-        dataframe = dataset.get_images()
+        dataframe_generator = dataset.get_images_generator()
 
-        count = 0
-        for row in dataframe:
-            images, labels = row[0], row[1]
-            count += images.shape[0]
-            print(images.shape, end='\t')
-            print(labels.shape, end='\n\n---------------\n')
+        if self.model_created is False:
+            self.model.create_model()
+            self.model.compile()
+
+        self.model.fit_generator(dataframe_generator, batch_size, epochs)
+
+        # count = 0
+        # for row in dataframe_generator:
+        #     images, labels = row[0], row[1]
+        #     count += images.shape[0]
+        #     print(images.shape, end='\t')
+        #     print(labels.shape, end='\n\n---------------\n')
         end = time()
-        print('\n\nImages processed: ' + str(count))
+        # print('\n\nImages processed: ' + str(count))
         print('Processing time: ' + str(round(end - start, 2)) + ' seconds')
 
     def clean_log_folder(self):
@@ -74,6 +95,8 @@ class MenuController:
 def print_menu():
     print("\n\nPossible actions: (select the action)", end='\n\n')
     print('1) Train all images')
+    print('2) Save trained model')
+    print('3) Load existing model from json')
     print('\n-- System --------------')
     print('8) Clean log folder')
     print('9) Exit', end='\n\n')

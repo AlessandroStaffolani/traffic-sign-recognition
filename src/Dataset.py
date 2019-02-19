@@ -20,40 +20,83 @@ class Dataset:
         self.image_extension = image_extension
         self.labels = labels
 
-    def get_images(self):
+    def get_images_generator(self):
         directories = get_directory_files(self._folder_path)
         directories.sort()
 
-        total_count = 0
+        while True:
+            total_count = 0
 
-        # Iterate through image folders
-        for directory in directories:
-            current_directory = directory
-            path_label_folder = self._folder_path + '/' + current_directory
+            # Iterate through image folders
+            for directory in directories:
+                current_directory = directory
+                path_label_folder = self._folder_path + '/' + current_directory
 
-            images = [image for image in get_directory_files(path_label_folder) if
-                      self.image_extension in image]
+                images = [image for image in get_directory_files(path_label_folder) if
+                          self.image_extension in image]
 
-            logging.info("Iterating through label folder: " + str(directory) + " with " + str(len(images)) + " images")
+                logging.info("Iterating through label folder: " + str(current_directory) + " with " + str(len(images)) + " images")
 
-            count = 0
-            image_processed = 0
+                count = 0
+                image_processed = 0
 
-            # While all images in folder are processed
-            while count < len(images):
-                # get the real chunk size based on the remaing images to process
-                if len(images) - image_processed > self._chunk_size:
-                    chunk = self._chunk_size
-                else:
-                    chunk = len(images) - image_processed
+                # While all images in folder are processed
+                while count < len(images):
+                    # get the real chunk size based on the remaing images to process
+                    if len(images) - image_processed > self._chunk_size:
+                        chunk = self._chunk_size
+                    else:
+                        chunk = len(images) - image_processed
 
-                img_array = list()
-                labels_array = list()
+                    img_array = list()
+                    labels_array = list()
 
-                # for each image until the chunk is finished
-                for i in range(0, chunk):
-                    image = load_image(path_label_folder + '/' + images[image_processed + i])
-                    # Call the preprocessing function over the loaded image
+                    # for each image until the chunk is finished
+                    for i in range(0, chunk):
+                        image = load_image(path_label_folder + '/' + images[image_processed + i])
+                        # Call the preprocessing function over the loaded image
+                        preprocessed = self.image_preprocessing(image, (self.image_shape, self.image_shape))
+                        # Get image label
+                        labels = get_image_label(current_directory, self.labels)
+
+                        # append image and label to dataframe
+                        img_array.append(preprocessed)
+                        labels_array.append(labels)
+
+                    # Update indexes
+                    count += chunk
+                    image_processed += chunk
+                    total_count += chunk
+
+                    logging.info("Processed a chunk of " + str(chunk) + " images")
+                    logging.info("Total images processed until now: " + str(total_count))
+
+                    # Yield images and labels
+                    np_img_array = np.array(img_array)
+                    np_label_array = np.array(labels_array)
+                    yield np_img_array.astype(np.uint8), np_label_array.astype(np.uint8)
+
+    def get_images_subset(self, num_element_for_label=5):
+        directories = get_directory_files(self._folder_path)
+        directories.sort()
+
+        while True:
+
+            # Iterate through image folders
+            for directory in directories:
+                current_directory = directory
+                path_label_folder = self._folder_path + '/' + current_directory
+
+                images = [image for image in get_directory_files(path_label_folder) if
+                          self.image_extension in image]
+
+                for i in range(0, num_element_for_label):
+
+                    img_array = list()
+                    labels_array = list()
+
+                    image = load_image(path_label_folder + '/' + images[i])
+
                     preprocessed = self.image_preprocessing(image, (self.image_shape, self.image_shape))
                     # Get image label
                     labels = get_image_label(current_directory, self.labels)
@@ -62,18 +105,10 @@ class Dataset:
                     img_array.append(preprocessed)
                     labels_array.append(labels)
 
-                # Update indexes
-                count += chunk
-                image_processed += chunk
-                total_count += chunk
-
-                logging.info("Processed a chunk of " + str(chunk) + " images")
-                logging.info("Total images processed until now: " + str(total_count))
-
-                # Yield images and labels
-                np_img_array = np.array(img_array)
-                np_label_array = np.array(labels_array)
-                yield np_img_array.astype(np.uint8), np_label_array.astype(np.uint8)
+                    # Yield images and labels
+                    np_img_array = np.array(img_array)
+                    np_label_array = np.array(labels_array)
+                    yield np_img_array.astype(np.uint8), np_label_array.astype(np.uint8)
 
     def set_chunk_size(self, chunk):
         self._chunk_size = chunk

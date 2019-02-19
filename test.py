@@ -25,7 +25,7 @@ def test_dataset():
     labels = get_labels(43)
     dataset = Dataset('data/training/images', preprocess_image, chunk_size=1000, labels=labels)
 
-    dataframe = dataset.get_images()
+    dataframe = dataset.get_images_generator()
 
     for row in dataframe:
         images, labels = row[0], row[1]
