@@ -48,26 +48,29 @@ class Cnn:
                        batch_size=batch_size)
 
     def fit_generator(self, generator, steps_per_epoch=1000, epochs=10, validation_data=None, validation_steps=None,
-                      workers=5):
+                      workers=5, initial_epoch=0):
         self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
                                  validation_data=validation_data,
                                  validation_steps=validation_steps,
                                  workers=workers,
-                                 use_multiprocessing=True)
+                                 use_multiprocessing=True,
+                                 initial_epoch=initial_epoch)
 
     def evaluate(self, test_data, test_labels, batch_size=100):
         self.model.evaluate(test_data, test_labels, batch_size=batch_size)
 
     def save_json_model(self, out_path):
+        self.model.save_weights(out_path + '-weights.h5')
         json_model = self.model.to_json()
-        with open(out_path, 'w') as outfile:
+        with open(out_path + '-model.json', 'w') as outfile:
             outfile.write(json_model)
 
     def load_json_model(self, file):
-        json_file = open(file, 'r')
+        json_file = open(file + '-model.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         self.model = model_from_json(loaded_model_json)
+        self.model.load_weights(file + '-weights.h5')
 
 
 def get_value_if_list_or_int(value, index):

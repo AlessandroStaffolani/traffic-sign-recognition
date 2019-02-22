@@ -75,12 +75,15 @@ class MenuController:
                                   int(epochs), int(image_shape), workers)
         elif self.current_action == 4:
             # save model
-            model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
+            model_out = ask_param_with_default('Where do you want to save the model', 'model/model')
             self.model.save_json_model(model_out)
 
         elif self.current_action == 5:
             # load model
-            model_path = ask_param_with_default('Location of the saved model', 'model/model.json')
+            model_path = ask_param_with_default('Location of the saved model', 'model/model')
+            image_shape = ask_param_with_default(
+                'Dimension of all images, must be the same vertically and horizontally', self.image_shape)
+            self.model = Cnn(input_shape=(image_shape, image_shape, 1))
             self.model.load_json_model(model_path)
             self.model.compile()
             self.model_created = True
