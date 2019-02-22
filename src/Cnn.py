@@ -8,7 +8,7 @@ from keras.models import model_from_json
 class Cnn:
 
     def __init__(self, num_layers=2, nodes_per_layer=100, layer_activation='relu', num_output=43,
-                 output_activation='softmax', kernel_size=3, input_shape=(46, 46, 3)):
+                 output_activation='softmax', kernel_size=3, input_shape=(46, 46)):
         self.model = None
         self.num_layers = num_layers
         self.nodes_per_layer = nodes_per_layer
@@ -23,7 +23,7 @@ class Cnn:
 
         self.model.add(
             Conv2D(filters=32, kernel_size=self.kernel_size, activation=self.layers_activation,
-                   strides=(1, 1), padding='same', input_shape=self.input_shape, data_format='channels_last'))
+                   strides=(1, 1), padding='same', input_shape=self.input_shape))
 
         self.model.add(MaxPool2D(pool_size=(2, 2), strides=2))
 

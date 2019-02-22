@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.utils import shuffle
 import logging
 
 from src.utility.file_utility import get_directory_files
@@ -12,16 +13,35 @@ logging.basicConfig(filename='log/dataset.log', level=logging.INFO,
 
 class Dataset:
 
-    def __init__(self, folder_path, image_preprocessing, image_shape=46, chunk_size=1000, labels=None, image_extension='ppm'):
-        self._folder_path = folder_path
-        self.image_preprocessing = image_preprocessing
-        self.image_shape = int(image_shape)
-        self._chunk_size = int(chunk_size)
-        self.image_extension = image_extension
+    def __init__(self, data_path, pipeline, labels=None):
+        self.data_path = data_path
+        self.pipeline = pipeline
         self.labels = labels
 
-    def get_images_generator(self):
-        directories = get_directory_files(self._folder_path)
+    def get_images_generator(self, batch_size=32, input_shape=(32, 46, 46, 1), n_sample=None):
+        table_data = pd.read_csv(self.data_path, nrows=n_sample)
+        table_data = shuffle(table_data)  # implement (sliced) random permutations.
+
+        while True:
+
+            X = np.empty(input_shape)
+            y = np.empty(batch_size, dtype=int)
+
+            for index, row in table_data.iterrows():
+                image_path = row['image_path']
+                label = row['label']
+
+                image = load_image(image_path)
+                # Call the preprocessing function over the loaded image
+                preprocessed = self.pipeline.evaluate(image)
+                # Get image label in the format necessary for the CNN
+                labels = get_image_label(label, self.labels)
+
+                # Yield images and labels
+                yield (np.array(preprocessed).astype(np.uint8), np.array(labels).astype(np.uint8))
+
+    def get_images_generator_from_folders(self):
+        directories = get_directory_files(self.data_path)
         directories.sort()
 
         while True:
@@ -30,10 +50,10 @@ class Dataset:
             # Iterate through image folders
             for directory in directories:
                 current_directory = directory
-                path_label_folder = self._folder_path + '/' + current_directory
+                path_label_folder = self.data_path + '/' + current_directory
 
                 images = [image for image in get_directory_files(path_label_folder) if
-                          self.image_extension in image]
+                          'ppm' in image]
 
                 logging.info("Iterating through label folder: " + str(current_directory) + " with " + str(len(images)) + " images")
 
@@ -55,7 +75,7 @@ class Dataset:
                     for i in range(0, chunk):
                         image = load_image(path_label_folder + '/' + images[image_processed + i])
                         # Call the preprocessing function over the loaded image
-                        preprocessed = self.image_preprocessing(image, (self.image_shape, self.image_shape))
+                        preprocessed = self.pipeline(image, (46, 46))
                         # Get image label
                         labels = get_image_label(current_directory, self.labels)
 
@@ -76,8 +96,8 @@ class Dataset:
                     np_label_array = np.array(labels_array)
                     yield np_img_array.astype(np.uint8), np_label_array.astype(np.uint8)
 
-    def get_images_subset(self, num_element_for_label=5):
-        directories = get_directory_files(self._folder_path)
+    def get_images_subset_from_folder(self, num_element_for_label=5):
+        directories = get_directory_files(self.data_path)
         directories.sort()
 
         while True:
@@ -85,7 +105,7 @@ class Dataset:
             # Iterate through image folders
             for directory in directories:
                 current_directory = directory
-                path_label_folder = self._folder_path + '/' + current_directory
+                path_label_folder = self.data_path + '/' + current_directory
 
                 images = [image for image in get_directory_files(path_label_folder) if
                           self.image_extension in image]
@@ -97,7 +117,7 @@ class Dataset:
 
                     image = load_image(path_label_folder + '/' + images[i])
 
-                    preprocessed = self.image_preprocessing(image, (self.image_shape, self.image_shape))
+                    preprocessed = self.pipeline(image, (self.image_shape, self.image_shape))
                     # Get image label
                     labels = get_image_label(current_directory, self.labels)
 
@@ -106,22 +126,22 @@ class Dataset:
                     labels_array.append(labels)
 
                     # Yield images and labels
-                    np_img_array = np.array(img_array)
-                    np_label_array = np.array(labels_array)
+                    np_img_array = np.array([img_array])
+                    np_label_array = np.array([labels_array])
                     yield np_img_array.astype(np.uint8), np_label_array.astype(np.uint8)
 
-    def get_generators_no_chunk(self):
-        directories = get_directory_files(self._folder_path)
+    def get_generators_no_chunk_from_folder(self):
+        directories = get_directory_files(self.data_path)
         directories.sort()
 
         while True:
             # Iterate through image folders
             for directory in directories:
                 current_directory = directory
-                path_label_folder = self._folder_path + '/' + current_directory
+                path_label_folder = self.data_path + '/' + current_directory
 
                 images = [image for image in get_directory_files(path_label_folder) if
-                          self.image_extension in image]
+                          'ppm' in image]
 
                 for img in images:
                     img_array = list()
@@ -129,7 +149,7 @@ class Dataset:
 
                     image = load_image(path_label_folder + '/' + img)
 
-                    preprocessed = self.image_preprocessing(image, (self.image_shape, self.image_shape))
+                    preprocessed = self.pipeline(image, (46, 46))
                     # Get image label
                     labels = get_image_label(current_directory, self.labels)
 

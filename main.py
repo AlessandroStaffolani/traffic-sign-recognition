@@ -7,7 +7,7 @@ import keras
 from src.controllers.MenuController import MenuController
 
 
-def welcome_msg():
+def welcome_msg(random_seed):
     print("***************************************")
     print("******* COMPUTER VISION PROJECT *******")
     print("***************************************", end='\n\n\n')
@@ -23,10 +23,17 @@ def welcome_msg():
     print("Numpy: " + str(np.__version__))
     print("Pandas: " + str(pd.__version__))
     print("Keras: " + str(keras.__version__), end='\n\n')
+    print("To allow replication of the result will be used a specific random seed = " + str(random_seed))
+    print("Random seed can be changed passing another number as parameter of the program (python main.py <random_seed>)")
 
 
 def main(argv):
-    welcome_msg()
+    try:
+        random_seed = int(argv[1])
+    except IndexError:
+        random_seed = 42
+
+    welcome_msg(random_seed)
 
     menu = MenuController('data/training/images', 'data/testing/images')
 

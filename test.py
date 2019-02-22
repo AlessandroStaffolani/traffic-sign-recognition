@@ -1,4 +1,4 @@
-from src.utility.image_utility import load_image, show_image
+from src.utility.image_utility import load_image, show_image, img_to_grayscale, resize_image
 from src.utility.file_utility import get_directory_files
 from src.utility.dataset_utility import get_labels
 import sys
@@ -8,6 +8,9 @@ from src.Cnn import Cnn
 from src.Dataset import Dataset
 from src.utility.preprocessor_utility import preprocess_image
 from src.utility.dataset_utility import create_traing_data_table
+from src.utility.dataset_utility import create_validation_set
+
+np.random.seed(42)
 
 
 def test_dirlist():
@@ -23,19 +26,13 @@ def test_cnn():
 
 
 def test_dataset():
-    labels = get_labels(43)
-    dataset = Dataset('data/training/images', preprocess_image, chunk_size=1000, labels=labels)
+    labels = get_labels(43, False)
+    dataset = Dataset('data/training/images', preprocess_image, labels=labels)
 
-    dataframe = dataset.get_images_generator()
-
-    for row in dataframe:
-        images, labels = row[0], row[1]
-        print(images.shape, end='\t')
-        print(labels.shape, end='\n\n---------------\n')
-
-    # images = next(dataframe)
-    # for img in images:
-    #     show_image(img, 'image')
+    dataframe = dataset.get_images_generator('data/training/training_table.csv')
+    for i in range(100):
+        row = next(dataframe)
+        print(row[0].shape, row[1])
 
 
 def test_dataset_table_creation():
@@ -45,8 +42,12 @@ def test_dataset_table_creation():
 def main(argv):
     # test_cnn()
 
+    create_validation_set('data/validation', 'data/training/training_table.csv')
+
+
+
     # test_dataset()
-    test_dataset_table_creation()
+    # test_dataset_table_creation()
 
 
 if __name__ == '__main__':

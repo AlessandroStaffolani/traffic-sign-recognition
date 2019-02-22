@@ -26,3 +26,8 @@ def show_image(image, image_name, image_category='', use_plt=False):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+
+def img_to_grayscale(image):
+    return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+

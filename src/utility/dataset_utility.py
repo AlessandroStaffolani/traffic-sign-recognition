@@ -1,10 +1,14 @@
 import pandas as pd
 from src.utility.file_utility import get_directory_files
 from src.utility.system_utility import progress_bar
+from sklearn.model_selection import train_test_split
 
 
-def get_labels(n_labels):
-    return ['0000' + str(i) if i < 10 else '000' + str(i) for i in range(n_labels)]
+def get_labels(n_labels, as_string=True):
+    if as_string:
+        return ['0000' + str(i) if i < 10 else '000' + str(i) for i in range(n_labels)]
+    else:
+        return [int(i) for i in range(n_labels)]
 
 
 def get_image_label(label_code, labels):
@@ -38,3 +42,15 @@ def create_traing_data_table(folder_path, output_path, img_ext='ppm'):
         print()
 
     datatable.to_csv(output_path, index=False, header=True)
+
+
+def create_validation_set(train_out_folder, validation_out_folder, dataset_path):
+    dataframe = pd.read_csv(dataset_path)
+
+    x_train, x_valid, y_train, y_valid = train_test_split(dataframe['image_path'].values, dataframe['label'].values,
+                                                          test_size=0.20, shuffle=True)
+
+    print(x_train.shape)
+    print(x_valid.shape)
+    print(y_train.shape)
+    print(y_valid.shape)
