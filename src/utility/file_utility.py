@@ -1,4 +1,5 @@
 import os
+import shutil
 
 
 def get_directory_files(path):
@@ -24,3 +25,9 @@ def remove_file(file):
 def create_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
+
+
+def copy_file(source, destination):
+    if os.path.isfile(source):
+        shutil.copy(source, destination)
+

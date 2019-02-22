@@ -47,8 +47,12 @@ class Cnn:
         self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs,
                        batch_size=batch_size)
 
-    def fit_generator(self, generator, steps_per_epoch=1000, epochs=10):
+    def fit_generator(self, generator, steps_per_epoch=1000, epochs=10, validation_data=None, validation_steps=None,
+                      workers=5):
         self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
+                                 validation_data=validation_data,
+                                 validation_steps=validation_steps,
+                                 workers=workers,
                                  use_multiprocessing=True)
 
     def evaluate(self, test_data, test_labels, batch_size=100):

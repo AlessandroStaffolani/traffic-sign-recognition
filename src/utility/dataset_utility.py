@@ -1,5 +1,5 @@
 import pandas as pd
-from src.utility.file_utility import get_directory_files
+from src.utility.file_utility import get_directory_files, create_directory, copy_file
 from src.utility.system_utility import progress_bar
 from sklearn.model_selection import train_test_split
 
@@ -44,13 +44,33 @@ def create_traing_data_table(folder_path, output_path, img_ext='ppm'):
     datatable.to_csv(output_path, index=False, header=True)
 
 
-def create_validation_set(train_out_folder, validation_out_folder, dataset_path):
+def split_train_data(train_out_folder, validation_out_folder, dataset_path, validation_size=0.2, labels=43):
     dataframe = pd.read_csv(dataset_path)
 
     x_train, x_valid, y_train, y_valid = train_test_split(dataframe['image_path'].values, dataframe['label'].values,
-                                                          test_size=0.20, shuffle=True)
+                                                          test_size=validation_size, shuffle=True)
 
-    print(x_train.shape)
-    print(x_valid.shape)
-    print(y_train.shape)
-    print(y_valid.shape)
+    for i in range(labels):
+        if i < 10:
+            folder = '0000' + str(i)
+        else:
+            folder = '000' + str(i)
+        create_directory(train_out_folder + '/' + folder)
+        create_directory(validation_out_folder + '/' + folder)
+
+    copy_images(x_train, y_train, train_out_folder)
+    print()
+    copy_images(x_valid, y_valid, validation_out_folder)
+
+
+def copy_images(x, y, output_path):
+    for i in range(x.shape[0]):
+        label = y[i]
+        if label < 10:
+            folder = '0000' + str(label)
+        else:
+            folder = '000' + str(label)
+        file_name = x[i].split('/')[-1]
+        copy_file(x[i], output_path + '/' + folder + '/' + file_name)
+        progress_bar(i, x.shape[0], 'Copying ' + str(x.shape[0]) + ' images in: ' + output_path)
+
