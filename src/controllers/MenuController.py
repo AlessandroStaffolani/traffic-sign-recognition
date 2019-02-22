@@ -9,12 +9,14 @@ from src.preprocessors.Resizer import Resizer
 from src.preprocessors.GrayScale import GrayScale
 from src.Pipeline import Pipeline
 from src.Dataset import Dataset
+from src.DataGenerator import DataGenerator
 from src.Cnn import Cnn
 
 
 class MenuController:
 
-    def __init__(self, image_folder_training, image_folder_testing, labels_count=43, batch_size=1000, epochs=10, image_shape=46, log_folder='log'):
+    def __init__(self, image_folder_training, image_folder_testing, labels_count=43, batch_size=1000, epochs=10,
+                 image_shape=46, log_folder='log'):
         self.labels = get_labels(labels_count)
         self.image_folder_training = image_folder_training
         self.image_folder_testing = image_folder_testing
@@ -59,12 +61,18 @@ class MenuController:
         elif self.current_action == 3:
             # Train all images
 
-            data_table_path = ask_param_with_default('Training images data table file', 'data/training/training_table.csv')
+            train_dir = ask_param_with_default('Training images data dir', 'data/train')
+            n_train_samples = int(ask_param_with_default('Number of training samples ', 31367))
+            validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
+            n_valid_samples = int(ask_param_with_default('Number of validation samples ', 7842))
             batch_size = ask_param_with_default('Batch size to use for training', self.batch_size)
             epochs = ask_param_with_default('Number of epochs for training', self.epochs)
-            image_shape = ask_param_with_default('Dimension of all images, must be the same vertically and horizontally', self.image_shape)
+            image_shape = ask_param_with_default(
+                'Dimension of all images, must be the same vertically and horizontally', self.image_shape)
+            workers = int(ask_param_with_default('Number of processes to spin up when using process-based threading', 5))
 
-            self.train_all_images(data_table_path, int(batch_size), int(epochs), int(image_shape))
+            self.train_all_images(train_dir, validation_dir, n_train_samples, n_valid_samples, int(batch_size),
+                                  int(epochs), int(image_shape), workers)
         elif self.current_action == 4:
             # save model
             model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
@@ -87,25 +95,30 @@ class MenuController:
             # No action possible
             print("Possible actions are 1, 2, 3, 4, 8, 9")
 
-    def train_all_images(self, data_table_path, batch_size, epochs, image_shape):
+    def train_all_images(self, train_dir, validation_dir, n_train_samples, n_valid_sample, batch_size, epochs,
+                         image_shape, workers):
         start = time()
-        pipeline = Pipeline(verbose=False)
 
-        pipeline.add_preprocessors([
-            Resizer('Image resize', image_shape),
-            GrayScale('Image to gray scale')
-        ])
+        train_generator = DataGenerator(train_dir, n_train_samples, batch_size=batch_size,
+                                        image_shape=(image_shape, image_shape))
 
-        dataset = Dataset(data_table_path, pipeline, self.labels)
-
-        dataframe_generator = dataset.get_images_generator()
+        validation_generator = DataGenerator(validation_dir, n_valid_sample, batch_size=batch_size,
+                                             image_shape=(image_shape, image_shape))
 
         if self.model_created is False:
             self.model = Cnn(input_shape=(image_shape, image_shape, 1))
             self.model.create_model()
             self.model.compile()
+            self.model_created = True
 
-        self.model.fit_generator(dataframe_generator, batch_size, epochs)
+        self.model.fit_generator(
+            train_generator.get_generator(),
+            steps_per_epoch=n_train_samples // batch_size,
+            epochs=epochs,
+            validation_data=validation_generator.get_generator(),
+            validation_steps=n_valid_sample // batch_size,
+            workers=workers
+        )
 
         end = time()
         print('Processing time: ' + str(round(end - start, 2)) + ' seconds')
