@@ -44,11 +44,11 @@ model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'])
 
 # this is the augmentation configuration we will use for training
-train_datagen = ImageDataGenerator()
+train_datagen = ImageDataGenerator(featurewise_center=True, featurewise_std_normalization=True)
 
 # this is the augmentation configuration we will use for testing:
 # only rescaling
-test_datagen = ImageDataGenerator()
+test_datagen = ImageDataGenerator(featurewise_center=True, featurewise_std_normalization=True)
 
 train_generator = train_datagen.flow_from_directory(
     train_data_dir,
