@@ -7,17 +7,17 @@ from keras import backend as K
 # dimensions of our images.
 img_width, img_height = 46, 46
 
-train_data_dir = 'data/training'
-# validation_data_dir = 'data/validation'
-nb_train_samples = 2000
-nb_validation_samples = 800
-epochs = 50
+train_data_dir = 'data/train'
+validation_data_dir = 'data/validation'
+nb_train_samples = 31367
+nb_validation_samples = 7842
+epochs = 3
 batch_size = 16
 
 if K.image_data_format() == 'channels_first':
-    input_shape = (3, img_width, img_height)
+    input_shape = (1, img_width, img_height)
 else:
-    input_shape = (img_width, img_height, 3)
+    input_shape = (img_width, img_height, 1)
 
 model = Sequential()
 model.add(Conv2D(32, (3, 3), input_shape=input_shape))
@@ -36,42 +36,44 @@ model.add(Flatten())
 model.add(Dense(64))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
-model.add(Dense(1))
+model.add(Dense(43))
 model.add(Activation('sigmoid'))
 
-model.compile(loss='binary_crossentropy',
-              optimizer='rmsprop',
+model.compile(loss='categorical_crossentropy',
+              optimizer='adam',
               metrics=['accuracy'])
 
 # this is the augmentation configuration we will use for training
-train_datagen = ImageDataGenerator(
-    rescale=1. / 255,
-    shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True)
+train_datagen = ImageDataGenerator()
 
 # this is the augmentation configuration we will use for testing:
 # only rescaling
-test_datagen = ImageDataGenerator(rescale=1. / 255)
+test_datagen = ImageDataGenerator()
 
 train_generator = train_datagen.flow_from_directory(
     train_data_dir,
     target_size=(img_width, img_height),
+    color_mode='grayscale',
     batch_size=batch_size,
-    class_mode='binary')
+    shuffle=True,
+    seed=42,
+    class_mode='categorical')
 
-# validation_generator = test_datagen.flow_from_directory(
-#     validation_data_dir,
-#     target_size=(img_width, img_height),
-#     batch_size=batch_size,
-#     class_mode='binary')
+validation_generator = test_datagen.flow_from_directory(
+    validation_data_dir,
+    target_size=(img_width, img_height),
+    batch_size=batch_size,
+    color_mode='grayscale',
+    shuffle=True,
+    seed=42,
+    class_mode='categorical')
 
 model.fit_generator(
     train_generator,
     steps_per_epoch=nb_train_samples // batch_size,
     epochs=epochs,
-    # validation_data=validation_generator,
-    # validation_steps=nb_validation_samples // batch_size
+    validation_data=validation_generator,
+    validation_steps=nb_validation_samples // batch_size
     )
 
 model.save_weights('first_try.h5')

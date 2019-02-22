@@ -8,7 +8,7 @@ from src.Cnn import Cnn
 from src.Dataset import Dataset
 from src.utility.preprocessor_utility import preprocess_image
 from src.utility.dataset_utility import create_traing_data_table
-from src.utility.dataset_utility import create_validation_set
+from src.utility.dataset_utility import split_train_data
 
 np.random.seed(42)
 
@@ -42,7 +42,7 @@ def test_dataset_table_creation():
 def main(argv):
     # test_cnn()
 
-    create_validation_set('data/validation', 'data/training/training_table.csv')
+    split_train_data('data/validation', 'data/train', 'data/training/training_table.csv')
 
 
 

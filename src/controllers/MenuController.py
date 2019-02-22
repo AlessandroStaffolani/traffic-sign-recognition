@@ -3,7 +3,7 @@ from time import time
 from src.utility.dataset_utility import get_labels
 from src.utility.file_utility import get_directory_files, remove_file
 from src.utility.preprocessor_utility import preprocess_image
-from src.utility.dataset_utility import create_traing_data_table
+from src.utility.dataset_utility import create_traing_data_table, split_train_data
 
 from src.preprocessors.Resizer import Resizer
 from src.preprocessors.GrayScale import GrayScale
@@ -43,6 +43,20 @@ class MenuController:
             create_traing_data_table(folder, output)
 
         elif self.current_action == 2:
+            # Split training data
+
+            data_table_path = ask_param_with_default('Training images data table file',
+                                                     'data/training/training_table.csv')
+            train_out_path = ask_param_with_default('Train data output path', 'data/train')
+            validation_out_path = ask_param_with_default('Validation data output path', 'data/validation')
+            validation_size = ask_param_with_default('Validation set proportion', 0.2)
+            print()
+            start = time()
+            split_train_data(train_out_path, validation_out_path, data_table_path, validation_size=validation_size)
+            end = time()
+            print('\nTraing data split time: ' + str(round(end - start, 2)) + ' seconds')
+
+        elif self.current_action == 3:
             # Train all images
 
             data_table_path = ask_param_with_default('Training images data table file', 'data/training/training_table.csv')
@@ -51,12 +65,12 @@ class MenuController:
             image_shape = ask_param_with_default('Dimension of all images, must be the same vertically and horizontally', self.image_shape)
 
             self.train_all_images(data_table_path, int(batch_size), int(epochs), int(image_shape))
-        elif self.current_action == 3:
+        elif self.current_action == 4:
             # save model
             model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
             self.model.save_json_model(model_out)
 
-        elif self.current_action == 4:
+        elif self.current_action == 5:
             # load model
             model_path = ask_param_with_default('Location of the saved model', 'model/model.json')
             self.model.load_json_model(model_path)
@@ -107,9 +121,10 @@ class MenuController:
 def print_menu():
     print("\n\nPossible actions: (select the action)", end='\n\n')
     print('1) Prepare training datatable')
-    print('2) Train all images')
-    print('3) Save trained model')
-    print('4) Load existing model from json')
+    print('2) Split training data')
+    print('3) Train all images')
+    print('4) Save trained model')
+    print('5) Load existing model from json')
     print('\n-- System --------------')
     print('8) Clean log folder')
     print('9) Exit', end='\n\n')
