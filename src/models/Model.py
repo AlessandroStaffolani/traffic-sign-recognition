@@ -5,13 +5,11 @@ from keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
 from keras.models import model_from_json
 
 
-class Cnn:
+class Model:
 
-    def __init__(self, num_layers=2, nodes_per_layer=100, layer_activation='relu', num_output=43,
+    def __init__(self, layer_activation='relu', num_output=43,
                  output_activation='softmax', kernel_size=3, input_shape=(46, 46)):
         self.model = None
-        self.num_layers = num_layers
-        self.nodes_per_layer = nodes_per_layer
         self.layers_activation = layer_activation
         self.num_output = num_output
         self.output_activation = output_activation
@@ -44,28 +42,40 @@ class Cnn:
         self.model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
 
     def fit(self, train_data, train_labels, validation_split=0.25, epochs=10, batch_size=100):
-        self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs,
-                       batch_size=batch_size)
+        return self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs,
+                              batch_size=batch_size)
 
     def fit_generator(self, generator, steps_per_epoch=1000, epochs=10, validation_data=None, validation_steps=None,
-                      workers=5, initial_epoch=0):
-        self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
-                                 validation_data=validation_data,
-                                 validation_steps=validation_steps,
-                                 workers=workers,
-                                 use_multiprocessing=True,
-                                 initial_epoch=initial_epoch)
+                      workers=1, initial_epoch=0):
+        return self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
+                                        validation_data=validation_data,
+                                        validation_steps=validation_steps,
+                                        workers=workers,
+                                        use_multiprocessing=False,
+                                        initial_epoch=initial_epoch)
 
-    def evaluate(self, test_data, test_labels, batch_size=100):
-        self.model.evaluate(test_data, test_labels, batch_size=batch_size)
+    def evaluate(self, test_data, test_labels, batch_size=None, verbose=1):
+        return self.model.evaluate(test_data, test_labels, batch_size=batch_size, verbose=verbose)
 
-    def save_json_model(self, out_path):
+    def evaluate_generator(self, generator, steps=1000, workers=1, verbose=1):
+        return self.model.evaluate_generator(generator, steps=steps, workers=workers, use_multiprocessing=False,
+                                             verbose=verbose)
+
+    def predict(self, data, batch_size=None, verbose=1, steps=None):
+        return self.model.predict(data, batch_size=batch_size, verbose=verbose, steps=steps)
+
+    def predict_generator(self, generator, steps=None, callbacks=None, max_queue_size=10, workers=1,
+                          use_multiprocessing=False, verbose=0):
+        return self.model.predict_generator(generator, steps, callbacks, max_queue_size, workers, use_multiprocessing,
+                                            verbose)
+
+    def save_model(self, out_path):
         self.model.save_weights(out_path + '-weights.h5')
         json_model = self.model.to_json()
         with open(out_path + '-model.json', 'w') as outfile:
             outfile.write(json_model)
 
-    def load_json_model(self, file):
+    def load_model(self, file):
         json_file = open(file + '-model.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()

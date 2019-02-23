@@ -4,9 +4,8 @@ from keras.preprocessing.image import ImageDataGenerator
 
 class DataGenerator:
 
-    def __init__(self, data_dir, n_samples, image_shape=(46, 46), batch_size=32):
+    def __init__(self, data_dir, image_shape=(46, 46), batch_size=32):
         self.data_dir = data_dir
-        self.n_sample = n_samples
         self.image_shape = image_shape
         self.batch_size = batch_size
 
@@ -17,7 +16,7 @@ class DataGenerator:
 
         self.generator = None
 
-    def create(self, featurewise_center=True, samplewise_center=False, featurewise_std_normalization=True,
+    def create(self, featurewise_center=False, samplewise_center=False, featurewise_std_normalization=False,
                samplewise_std_normalization=False, preprocessing_function=None):
 
         self.generator = ImageDataGenerator(featurewise_center=featurewise_center,

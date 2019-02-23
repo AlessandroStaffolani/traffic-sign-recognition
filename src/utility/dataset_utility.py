@@ -74,3 +74,31 @@ def copy_images(x, y, output_path):
         copy_file(x[i], output_path + '/' + folder + '/' + file_name)
         progress_bar(i, x.shape[0], 'Copying ' + str(x.shape[0]) + ' images in: ' + output_path)
 
+
+def prepare_test_data(starting_folder, output_folder, data_frame_path, sep=';', label_col='ClassId', labels=43):
+    files = get_directory_files(starting_folder)
+    files.sort()
+
+    data_frame = pd.read_csv(data_frame_path, sep=sep)
+
+    for i in range(labels):
+        if i < 10:
+            folder = '0000' + str(i)
+        else:
+            folder = '000' + str(i)
+        create_directory(output_folder + '/' + folder)
+
+    for i in range(data_frame.shape[0]):
+        label = data_frame.iloc[i]
+        label = label[label_col]
+
+        if label < 10:
+            folder = '0000' + str(label)
+        else:
+            folder = '000' + str(label)
+        image_name = files[i]
+
+        copy_file(starting_folder + '/' + image_name, output_folder + '/' + folder + '/' + image_name)
+        progress_bar(i, data_frame.shape[0], 'Copying ' + str(data_frame.shape[0]) + ' images in: ' + output_folder)
+
+    print()
