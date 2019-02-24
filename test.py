@@ -76,16 +76,19 @@ def main(argv):
     # print(test_label.shape)
     # print()
 
-    generator = DataGenerator('data/validation')
+    # generator = DataGenerator('data/validation')
+
 
     model = Model()
-    model.load_model('model/6-epochs')
-
-    model.compile()
-
-    scores = model.evaluate_generator(generator.get_generator(), 7842 // 32)
-
-    print(scores)
+    model.init_callbacks()
+    print(model.callbacks)
+    # model.load_model('model/6-epochs')
+    #
+    # model.compile()
+    #
+    # scores = model.evaluate_generator(generator.get_generator(), 7842 // 32)
+    #
+    # print(scores)
 
 
 if __name__ == '__main__':

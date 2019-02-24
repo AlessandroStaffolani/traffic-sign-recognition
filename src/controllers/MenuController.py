@@ -10,7 +10,7 @@ from src.models.Model import Model
 
 class MenuController:
 
-    def __init__(self, image_folder_training, image_folder_testing, labels_count=43, batch_size=32, epochs=10,
+    def __init__(self, image_folder_training, image_folder_testing, labels_count=43, batch_size=1000, epochs=10,
                  image_shape=46, log_folder='log'):
         self.labels = get_labels(labels_count)
         self.image_folder_training = image_folder_training
@@ -125,10 +125,10 @@ class MenuController:
         n_train_samples = int(ask_param_with_default('Number of training samples ', 31367))
         validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
         n_valid_sample = int(ask_param_with_default('Number of validation samples ', 7842))
-        batch_size = ask_param_with_default('Batch size to use for training', self.batch_size)
-        epochs = ask_param_with_default('Number of epochs for training', self.epochs)
-        image_shape = ask_param_with_default(
-            'Dimension of all images, must be the same vertically and horizontally', self.image_shape)
+        batch_size = int(ask_param_with_default('Batch size to use for training', self.batch_size))
+        epochs = int(ask_param_with_default('Number of epochs for training', self.epochs))
+        image_shape = int(ask_param_with_default(
+            'Dimension of all images, must be the same vertically and horizontally', self.image_shape))
         workers = int(ask_param_with_default('Number of processes to spin up when using process-based threading', 1))
         save = bool(ask_param_with_default('Save at the end', True))
 
@@ -144,35 +144,53 @@ class MenuController:
             self.model = Model(input_shape=(image_shape, image_shape, 1))
             self.model.create_model()
             self.model.compile()
+            self.model.init_callbacks()
             self.model_created = True
 
-        self.model.fit_generator(
+        if workers > 1:
+            use_multiprocessing = True
+        else:
+            use_multiprocessing = False
+
+        history = self.model.fit_generator(
             train_generator.get_generator(),
             steps_per_epoch=n_train_samples // batch_size,
             epochs=epochs,
             validation_data=validation_generator.get_generator(),
             validation_steps=n_valid_sample // batch_size,
-            workers=workers
+            workers=workers,
+            use_multiprocessing=use_multiprocessing
         )
 
         end = time()
-        print('Processing time: ' + str(round(end - start, 2)) + ' seconds')
+        print('Processing time: ' + str(round(end - start, 2)) + ' seconds', end='\n\n')
+
+        print('Loss history:\t' + str(history.history['loss']))
+        print('Accuracy history:\t' + str(history.history['acc']))
+        print('Loss validation history:\t' + str(history.history['val_loss']))
+        print('Accuracy validation history:\t' + str(history.history['val_acc']))
 
         if save is True:
             now = strftime("%d-%m-%Y_%H:%M:%S", gmtime())
-            self.model.save_model('model/train_' + now)
+            self.model.save_model('model/train_' + now + '.json')
+            self.model.save_weights('model/weights/train_' + now + '.h5')
 
     def save_model(self):
-        model_out = ask_param_with_default('Where do you want to save the model', 'model/model')
+        model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
         self.model.save_model(model_out)
+        weights_out = ask_param_with_default('Where do want to save the weights', 'model/weights/weights.h5')
+        self.model.save_weights(weights_out)
 
     def load_model(self):
-        model_path = ask_param_with_default('Location of the saved model', 'model/model')
+        model_path = ask_param_with_default('Location of the saved model', 'model/model.json')
+        weights_path = ask_param_with_default('Location of the saved weights', 'model/weights/weights.h5')
         image_shape = ask_param_with_default(
             'Dimension of all images, must be the same vertically and horizontally', self.image_shape)
         self.model = Model(input_shape=(image_shape, image_shape, 1))
         self.model.load_model(model_path)
+        self.model.load_weights(weights_path)
         self.model.compile()
+        self.model.init_callbacks()
         self.model_created = True
 
     def evaluate_images(self):
