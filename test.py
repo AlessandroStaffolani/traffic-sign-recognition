@@ -11,8 +11,11 @@ from src.utility.preprocessor_utility import preprocess_image
 from src.utility.dataset_utility import create_traing_data_table
 from src.DataGenerator import DataGenerator
 from src.utility.dataset_utility import split_train_data
-from src.utility.image_utility import load_image, resize_image, img_to_grayscale
+from src.utility.image_utility import load_image, resize_image, img_to_grayscale, show_image
 from src.utility.system_utility import progress_bar
+from src.preprocessors.HistogramEqualizer import HistogramEqualizer
+from src.preprocessors.Normalizer import Normalizer
+from src.Pipeline import Pipeline
 
 np.random.seed(42)
 
@@ -44,51 +47,24 @@ def test_dataset_table_creation():
 
 
 def main(argv):
-    # test_cnn()
-    # test_folder = 'data/testing/images'
-    #
-    # test_images_names = get_directory_files(test_folder)
-    # test_images_names.sort()
-    # test_table = pd.read_csv('data/testing/GT-final_test.csv', sep=';')
-    # print(test_table.info())
-    # print(test_table.head())
-    # test_data = np.empty((12630, 46, 46, 1), dtype=np.uint8)
-    # test_label = np.empty((12630, 43))
-    # count = 0
-    # print()
-    # for image_name in test_images_names:
-    #     if 'ppm' in image_name:
-    #         image = load_image(test_folder + '/' + image_name)
-    #         image = resize_image(image, (46, 46))
-    #         image = img_to_grayscale(image)
-    #
-    #         label = test_table.iloc[count]
-    #         label = label['ClassId']
-    #
-    #         test_data[count, ] = image[:, :, np.newaxis]
-    #         test_label[count] = to_categorical([label], 43)
-    #
-    #         progress_bar(count, 12630, 'Collectring test images')
-    #         count += 1
-    #
-    # print()
-    # print(test_data.shape)
-    # print(test_label.shape)
-    # print()
+    image = load_image('data/training/images/00000/00000_00001.ppm', 0)
 
-    # generator = DataGenerator('data/validation')
+    print(image.shape)
+    print(image)
 
+    pipeline = Pipeline(verbose=True)
+    pipeline.add_preprocessors((
+        HistogramEqualizer(),
+        Normalizer()
+    ))
 
-    model = Model()
-    model.init_callbacks()
-    print(model.callbacks)
-    # model.load_model('model/6-epochs')
-    #
-    # model.compile()
-    #
-    # scores = model.evaluate_generator(generator.get_generator(), 7842 // 32)
-    #
-    # print(scores)
+    out = pipeline.evaluate(image)
+
+    print(out.shape)
+    print(out)
+
+    show_image(image, 'No elaboration')
+    show_image(out, 'Elaborated')
 
 
 if __name__ == '__main__':

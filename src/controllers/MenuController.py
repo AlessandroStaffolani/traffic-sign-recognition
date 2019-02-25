@@ -4,8 +4,12 @@ from src.utility.dataset_utility import get_labels
 from src.utility.file_utility import get_directory_files, remove_file
 from src.utility.dataset_utility import create_traing_data_table, split_train_data, prepare_test_data
 
+from src.preprocessors.HistogramEqualizer import HistogramEqualizer
+from src.preprocessors.Normalizer import Normalizer
+
 from src.DataGenerator import DataGenerator
 from src.models.Model import Model
+from src.Pipeline import Pipeline
 
 
 class MenuController:
@@ -21,6 +25,7 @@ class MenuController:
         self.log_folder = log_folder
         self.model = None
         self.model_created = False
+        self.pipeline = Pipeline()
 
         self.current_action = 0  # Action selected by user on the menu
         self.close_action = 9
@@ -28,6 +33,11 @@ class MenuController:
         self._init()
 
     def _init(self):
+        self.pipeline.add_preprocessors((
+            HistogramEqualizer(),
+            Normalizer()
+        ))
+
         while self.current_action != 9:
             print_menu()
             try:
@@ -135,10 +145,12 @@ class MenuController:
         start = time()
 
         train_generator = DataGenerator(train_dir, batch_size=batch_size,
-                                        image_shape=(image_shape, image_shape))
+                                        image_shape=(image_shape, image_shape),
+                                        preprocessing_function=self.pipeline.evaluate)
 
         validation_generator = DataGenerator(validation_dir, batch_size=batch_size,
-                                             image_shape=(image_shape, image_shape))
+                                             image_shape=(image_shape, image_shape),
+                                             preprocessing_function=self.pipeline.evaluate)
 
         if self.model_created is False:
             self.model = Model(input_shape=(image_shape, image_shape, 1))

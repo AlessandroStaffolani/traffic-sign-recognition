@@ -1,14 +1,14 @@
-import cv2
+import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 def load_image(image_name, cmap=1):
-    return cv2.imread(image_name, cmap)
+    return cv.imread(image_name, cmap)
 
 
 def resize_image(image, size):
-    return cv2.resize(image, size)
+    return cv.resize(image, size)
 
 
 def show_image(image, image_name, image_category='', use_plt=False):
@@ -18,16 +18,26 @@ def show_image(image, image_name, image_category='', use_plt=False):
         title = 'Category: ' + image_category + ' | Image: ' + image_name
     if use_plt:
         plt.axis("off")
-        plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        plt.imshow(cv.cvtColor(image, cv.COLOR_BGR2RGB))
         plt.title(title)
         plt.show()
     else:
-        cv2.imshow(title, image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        cv.imshow(title, image)
+        cv.waitKey(0)
+        cv.destroyAllWindows()
 
 
 def img_to_grayscale(image):
-    return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    return cv.cvtColor(image, cv.COLOR_RGB2GRAY)
 
+
+def equalize_img(image):
+    return cv.equalizeHist(image)
+
+
+def normalize_img(image, alpha=0, beta=1):
+    if alpha == 0 and beta == 1:
+        return cv.normalize(image, None, alpha=alpha, beta=beta, norm_type=cv.NORM_MINMAX, dtype=cv.CV_32F)
+    else:
+        return cv.normalize(image, None, alpha=alpha, beta=beta, norm_type=cv.NORM_MINMAX)
 

@@ -141,3 +141,4 @@ venv.bak/
 
 # Data folder
 /data/
+/log/tensorboard-logs/
