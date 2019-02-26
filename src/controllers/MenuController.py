@@ -134,7 +134,7 @@ class MenuController:
         train_dir = ask_param_with_default('Training images data dir', 'data/train')
         n_train_samples = int(ask_param_with_default('Number of training samples ', 31367))
         validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
-        n_valid_sample = int(ask_param_with_default('Number of validation samples ', 7842))
+        n_valid_samples = int(ask_param_with_default('Number of validation samples ', 7842))
         batch_size = int(ask_param_with_default('Batch size to use for training', self.batch_size))
         epochs = int(ask_param_with_default('Number of epochs for training', self.epochs))
         image_shape = int(ask_param_with_default(
@@ -169,7 +169,7 @@ class MenuController:
             steps_per_epoch=n_train_samples // batch_size,
             epochs=epochs,
             validation_data=validation_generator.get_generator(),
-            validation_steps=n_valid_sample // batch_size,
+            validation_steps=n_valid_samplest // batch_size,
             workers=workers,
             use_multiprocessing=use_multiprocessing
         )
