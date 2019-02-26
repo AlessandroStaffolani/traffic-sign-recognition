@@ -9,3 +9,4 @@ h5py
 tensorflow
 keras
 pillow
+jupyter
