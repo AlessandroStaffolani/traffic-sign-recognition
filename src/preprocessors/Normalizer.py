@@ -1,3 +1,4 @@
+import numpy as np
 from src.preprocessors.Preprocessor import Preprocessor
 from src.utility.image_utility import normalize_img
 
@@ -10,4 +11,5 @@ class Normalizer(Preprocessor):
         self.beta = beta
 
     def evaluate(self, value):
-        return normalize_img(value, self.alpha, self.beta)
+        normalized = normalize_img(value, self.alpha, self.beta)
+        return np.array(normalized)[:, :, np.newaxis]

@@ -49,6 +49,8 @@ def test_dataset_table_creation():
 def main(argv):
     image = load_image('data/training/images/00000/00000_00001.ppm', 0)
 
+    image = np.array(image)[:, :, np.newaxis]
+
     print(image.shape)
     print(image)
 
