@@ -141,6 +141,6 @@ venv.bak/
 
 # Data folder
 /data/
-/log/tensorboard-logs/
+/log/
 /model/
 /test_keras.py

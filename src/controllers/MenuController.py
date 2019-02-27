@@ -169,7 +169,7 @@ class MenuController:
             steps_per_epoch=n_train_samples // batch_size,
             epochs=epochs,
             validation_data=validation_generator.get_generator(),
-            validation_steps=n_valid_samplest // batch_size,
+            validation_steps=n_valid_samples // batch_size,
             workers=workers,
             use_multiprocessing=use_multiprocessing
         )
@@ -200,8 +200,8 @@ class MenuController:
             'Dimension of all images, must be the same vertically and horizontally', self.image_shape)
         self.model = Model(input_shape=(image_shape, image_shape, 1))
         self.model.load_model(model_path)
-        self.model.load_weights(weights_path)
         self.model.compile()
+        self.model.load_weights(weights_path)
         self.model.init_callbacks()
         self.model_created = True
 

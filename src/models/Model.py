@@ -1,5 +1,4 @@
-import keras
-import json
+from time import time, gmtime, strftime
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
 from keras.models import model_from_json
@@ -30,12 +29,13 @@ callback_table = {
             'restore_best_weights': True
         }
     },
-    'TensorBoard': {
-        'class': TensorBoard,
-        'args': {
-            'log_dir': 'log/tensorboard-logs'
-        }
-    }
+    # TensorBoard will be added at every fit execution to allow to change the name of log_dir based on the time stamp
+    # 'TensorBoard': {
+    #     'class': TensorBoard,
+    #     'args': {
+    #         'log_dir': 'log/tensorboard-logs'
+    #     }
+    # }
 }
 
 
@@ -81,6 +81,9 @@ class Model:
             callbacks = None
         else:
             callbacks = self.callbacks
+            now = strftime("%d-%m-%Y_%H-%M", gmtime())
+            callbacks.append(TensorBoard(log_dir='log/tensorboard-logs-' + str(now), write_grads=1,
+                                         batch_size=batch_size, write_images=True))
 
         return self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs,
                               batch_size=batch_size, callbacks=callbacks)
@@ -91,6 +94,10 @@ class Model:
             callbacks = None
         else:
             callbacks = self.callbacks
+            now = strftime("%d-%m-%Y_%H-%M", gmtime())
+            callbacks.append(TensorBoard(log_dir='log/tensorboard-logs-' + str(now), write_grads=1,
+                                         batch_size=steps_per_epoch, write_images=True))
+
         return self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
                                         validation_data=validation_data,
                                         validation_steps=validation_steps,
@@ -131,7 +138,8 @@ class Model:
     def load_weights(self, file):
         self.model.load_weights(file)
 
-    def init_callbacks(self, callbacks_names=tuple(('ModelCheckpoint', 'EarlyStopping', 'TensorBoard')), callbacks=None):
+    def init_callbacks(self, callbacks_names=tuple(('ModelCheckpoint', 'EarlyStopping', 'TensorBoard')),
+                       callbacks=None):
         if callbacks_names is None and callbacks is not None:
             self.callbacks = callbacks
         else:
