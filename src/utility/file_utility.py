@@ -22,6 +22,10 @@ def remove_file(file):
         return False
 
 
+def remove_folder_tree(path):
+    shutil.rmtree(path)
+
+
 def create_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -30,4 +34,12 @@ def create_directory(directory):
 def copy_file(source, destination):
     if os.path.isfile(source):
         shutil.copy(source, destination)
+
+
+def move_file(source, destination):
+    os.rename(source, destination)
+
+
+def move_directory(source, destination):
+    shutil.move(source, destination)
 

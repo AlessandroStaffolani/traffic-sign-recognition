@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from keras.utils import to_categorical
 
+from zipfile import ZipFile
+
 from src.models.Model import Model
 from src.Dataset import Dataset
 from src.utility.preprocessor_utility import preprocess_image
@@ -16,6 +18,8 @@ from src.utility.system_utility import progress_bar
 from src.preprocessors.HistogramEqualizer import HistogramEqualizer
 from src.preprocessors.Normalizer import Normalizer
 from src.Pipeline import Pipeline
+
+from src.init import init_training_data_folder, init_testing_id_file, init_testing_data_folder
 
 np.random.seed(42)
 
@@ -47,26 +51,30 @@ def test_dataset_table_creation():
 
 
 def main(argv):
-    image = load_image('data/training/images/00000/00000_00001.ppm', 0)
+    # image = load_image('data/training/images/00000/00000_00001.ppm', 0)
+    #
+    # image = np.array(image)[:, :, np.newaxis]
+    #
+    # print(image.shape)
+    # print(image)
+    #
+    # pipeline = Pipeline(verbose=True)
+    # pipeline.add_preprocessors((
+    #     HistogramEqualizer(),
+    #     Normalizer()
+    # ))
+    #
+    # out = pipeline.evaluate(image)
+    #
+    # print(out.shape)
+    # print(out)
+    #
+    # show_image(image, 'No elaboration')
+    # show_image(out, 'Elaborated')
 
-    image = np.array(image)[:, :, np.newaxis]
-
-    print(image.shape)
-    print(image)
-
-    pipeline = Pipeline(verbose=True)
-    pipeline.add_preprocessors((
-        HistogramEqualizer(),
-        Normalizer()
-    ))
-
-    out = pipeline.evaluate(image)
-
-    print(out.shape)
-    print(out)
-
-    show_image(image, 'No elaboration')
-    show_image(out, 'Elaborated')
+    init_testing_id_file()
+    init_testing_data_folder()
+    init_training_data_folder()
 
 
 if __name__ == '__main__':
