@@ -144,3 +144,4 @@ venv.bak/
 /log/
 /model/
 /test_keras.py
+/tmp/
