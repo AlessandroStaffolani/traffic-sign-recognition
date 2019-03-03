@@ -12,13 +12,27 @@ from src.models.Model import Model
 from src.Pipeline import Pipeline
 
 
+ACTIONS = {
+    '0': 'inti_project',
+    '1': 'prepare_datatable',
+    '2': 'split_training_data',
+    '3': 'prepare_test_data',
+    '4': 'train_all_images',
+    '5': 'save_model',
+    '6': 'load_model',
+    '7': 'evaluate_model',
+    '8': 'clean_log_folder',
+    '9': 'close'
+}
+
+
 class MenuController:
 
-    def __init__(self, image_folder_training, image_folder_testing, labels_count=43, batch_size=1000, epochs=10,
-                 image_shape=46, log_folder='log'):
+    def __init__(self, mode=0, actions=None, labels_count=43, batch_size=400, epochs=10,
+                 image_shape=46, log_folder='log/'):
         self.labels = get_labels(labels_count)
-        self.image_folder_training = image_folder_training
-        self.image_folder_testing = image_folder_testing
+        self.mode = mode
+        self.actions = actions
         self.batch_size = batch_size
         self.epochs = epochs
         self.image_shape = image_shape
@@ -38,15 +52,25 @@ class MenuController:
             Normalizer()
         ))
 
-        while self.current_action != 9:
-            print_menu()
-            try:
-                self.current_action = int(input())
-            except ValueError:
-                self.error_action()
-            self.handle_menu_action()
-            if self.current_action != self.close_action:
-                self.current_action = 0
+        if self.mode == 0:
+            # Interactive mode
+            while self.current_action != 9:
+                print_menu()
+                try:
+                    self.current_action = int(input())
+                except ValueError:
+                    self.error_action()
+                self.handle_menu_action()
+                if self.current_action != self.close_action:
+                    self.current_action = 0
+        else:
+            # script mode
+            print()
+            print('Actions to execute: ' + str(self.actions))
+            print('Configuration:', end='\n\n')
+            print('batch-size:\t' + str(self.batch_size))
+            print('epochs:\t\t' + str(self.epochs))
+            print('image-shape:\t' + str(self.image_shape), end='\n\n')
 
     def handle_menu_action(self):
         if self.current_action == 1:
@@ -100,7 +124,7 @@ class MenuController:
             self.error_action()
 
     def prepare_datatable(self):
-        folder = ask_param_with_default('Training images folder', self.image_folder_training)
+        folder = ask_param_with_default('Training images folder', 'data/training/images')
         output = ask_param_with_default('Output file path', 'data/training/training_table.csv')
         create_traing_data_table(folder, output)
 
@@ -119,7 +143,7 @@ class MenuController:
     def prepare_test_data(self):
         data_folder = ask_param_with_default('Folder of test images', 'data/testing/images')
         output_folder = ask_param_with_default('Test folder output', 'data/test')
-        data_frame_path = ask_param_with_default('Test data csv path', 'data/testing/GT-final_test.csv')
+        data_frame_path = ask_param_with_default('Test data csv path', 'data/testing/testing_table.csv')
         separator = ask_param_with_default('Separator for the data csv file', ';')
         label_col = ask_param_with_default('Name of the label column', 'ClassId')
 

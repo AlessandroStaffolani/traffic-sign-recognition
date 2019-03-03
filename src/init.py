@@ -26,6 +26,7 @@ def init_testing_data_folder(testing_zip_path='http://benchmark.ini.rub.de/Datas
 def init_testing_id_file(testing_zip_id_path='http://benchmark.ini.rub.de/Dataset/GTSRB_Final_Test_GT.zip',
                          out_path='data/testing/'):
     extract_dir_from_web(testing_zip_id_path, out_path)
+    move_file('data/testing/GT-final_test.csv', 'data/testing/testing_table.csv')
 
 
 def extract_dir_from_web(url, out_dir):
