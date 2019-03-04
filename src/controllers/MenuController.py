@@ -4,13 +4,14 @@ from src.utility.dataset_utility import get_labels
 from src.utility.file_utility import get_directory_files, remove_file
 from src.utility.dataset_utility import create_traing_data_table, split_train_data, prepare_test_data
 
+from src.init import init_training_data_folder, init_testing_data_folder, init_testing_id_file
+
 from src.preprocessors.HistogramEqualizer import HistogramEqualizer
 from src.preprocessors.Normalizer import Normalizer
 
 from src.DataGenerator import DataGenerator
 from src.models.Model import Model
 from src.Pipeline import Pipeline
-
 
 ACTIONS = {
     '0': 'inti_project',
@@ -20,7 +21,7 @@ ACTIONS = {
     '4': 'train_all_images',
     '5': 'save_model',
     '6': 'load_model',
-    '7': 'evaluate_model',
+    '7': 'evaluate_images',
     '8': 'clean_log_folder',
     '9': 'close'
 }
@@ -29,13 +30,17 @@ ACTIONS = {
 class MenuController:
 
     def __init__(self, mode=0, actions=None, labels_count=43, batch_size=400, epochs=10,
-                 image_shape=46, log_folder='log/'):
+                 image_shape=46, num_workers=1, model_path='model/model.json', weights_path='model/weights/weights.h5',
+                 log_folder='log/'):
         self.labels = get_labels(labels_count)
         self.mode = mode
         self.actions = actions
         self.batch_size = batch_size
         self.epochs = epochs
         self.image_shape = image_shape
+        self.num_workers = num_workers
+        self.model_path = model_path
+        self.weights_path = weights_path
         self.log_folder = log_folder
         self.model = None
         self.model_created = False
@@ -65,15 +70,25 @@ class MenuController:
                     self.current_action = 0
         else:
             # script mode
-            print()
+            print('\nSCRIPT MODE:', end='\n\n')
             print('Actions to execute: ' + str(self.actions))
-            print('Configuration:', end='\n\n')
-            print('batch-size:\t' + str(self.batch_size))
-            print('epochs:\t\t' + str(self.epochs))
-            print('image-shape:\t' + str(self.image_shape), end='\n\n')
+            print('Configuration:')
+            print('\tbatch-size:\t' + str(self.batch_size))
+            print('\tepochs:\t\t' + str(self.epochs))
+            print('\timage-shape:\t' + str(self.image_shape))
+            print('\tnum-workers:\t' + str(self.num_workers))
+            print('\tmodel-file:\t' + self.model_path)
+            print('\tweights-file:\t' + self.weights_path, end='\n\n')
+
+            self.execute_actions()
 
     def handle_menu_action(self):
-        if self.current_action == 1:
+        if self.current_action == 0:
+            # Download datasets
+
+            self.inti_project()
+
+        elif self.current_action == 1:
             # Prepare datatable
 
             self.prepare_datatable()
@@ -123,17 +138,51 @@ class MenuController:
 
             self.error_action()
 
+    def inti_project(self):
+        if self.mode == 0:
+            # Interactive mode
+            training_out_path = ask_param_with_default('Where to extract training data', 'data/training')
+            testing_out_path = ask_param_with_default('Where to extract testing data', 'data/testing')
+        else:
+            # Script mode
+            training_out_path = 'data/training'
+            testing_out_path = 'data/testing'
+
+        init_training_data_folder(out_path=training_out_path)
+        init_testing_data_folder(out_path=testing_out_path)
+        init_testing_id_file(out_path=testing_out_path)
+
     def prepare_datatable(self):
-        folder = ask_param_with_default('Training images folder', 'data/training/images')
-        output = ask_param_with_default('Output file path', 'data/training/training_table.csv')
+        if self.mode == 0:
+            # Interactive mode
+            folder = ask_param_with_default('Training images folder', 'data/training/images')
+            output = ask_param_with_default('Output file path', 'data/training/training_table.csv')
+        else:
+            # Script mode
+            folder = 'data/training/images'
+            output = 'data/training/training_table.csv'
+
+        print()
+        start = time()
         create_traing_data_table(folder, output)
+        end = time()
+        print('\nDatatable preparation time: ' + str(round(end - start, 2)) + ' seconds')
 
     def split_training_data(self):
-        data_table_path = ask_param_with_default('Training images data table file',
-                                                 'data/training/training_table.csv')
-        train_out_path = ask_param_with_default('Train data output path', 'data/train')
-        validation_out_path = ask_param_with_default('Validation data output path', 'data/validation')
-        validation_size = ask_param_with_default('Validation set proportion', 0.2)
+        if self.mode == 0:
+            # Intercative mode
+            data_table_path = ask_param_with_default('Training images data table file',
+                                                     'data/training/training_table.csv')
+            train_out_path = ask_param_with_default('Train data output path', 'data/train')
+            validation_out_path = ask_param_with_default('Validation data output path', 'data/validation')
+            validation_size = ask_param_with_default('Validation set proportion', 0.2)
+        else:
+            # Script mode
+            data_table_path = 'data/training/training_table.csv'
+            train_out_path = 'data/train'
+            validation_out_path = 'data/validation'
+            validation_size = 'Validation set proportion', 0.2
+
         print()
         start = time()
         split_train_data(train_out_path, validation_out_path, data_table_path, validation_size=validation_size)
@@ -141,11 +190,20 @@ class MenuController:
         print('\nTraing data split time: ' + str(round(end - start, 2)) + ' seconds')
 
     def prepare_test_data(self):
-        data_folder = ask_param_with_default('Folder of test images', 'data/testing/images')
-        output_folder = ask_param_with_default('Test folder output', 'data/test')
-        data_frame_path = ask_param_with_default('Test data csv path', 'data/testing/testing_table.csv')
-        separator = ask_param_with_default('Separator for the data csv file', ';')
-        label_col = ask_param_with_default('Name of the label column', 'ClassId')
+        if self.mode == 0:
+            # Intercative mode
+            data_folder = ask_param_with_default('Folder of test images', 'data/testing/images')
+            output_folder = ask_param_with_default('Test folder output', 'data/test')
+            data_frame_path = ask_param_with_default('Test data csv path', 'data/testing/testing_table.csv')
+            separator = ask_param_with_default('Separator for the data csv file', ';')
+            label_col = ask_param_with_default('Name of the label column', 'ClassId')
+        else:
+            # Script mode
+            data_folder = 'data/testing/images'
+            output_folder = 'data/test'
+            data_frame_path = 'data/testing/testing_table.csv'
+            separator = ';'
+            label_col = 'ClassId'
 
         print()
         start = time()
@@ -154,17 +212,30 @@ class MenuController:
         print('\nTime to split test images: ' + str(round(end - start, 2)) + ' seconds')
 
     def train_all_images(self):
-
-        train_dir = ask_param_with_default('Training images data dir', 'data/train')
-        n_train_samples = int(ask_param_with_default('Number of training samples ', 31367))
-        validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
-        n_valid_samples = int(ask_param_with_default('Number of validation samples ', 7842))
-        batch_size = int(ask_param_with_default('Batch size to use for training', self.batch_size))
-        epochs = int(ask_param_with_default('Number of epochs for training', self.epochs))
-        image_shape = int(ask_param_with_default(
-            'Dimension of all images, must be the same vertically and horizontally', self.image_shape))
-        workers = int(ask_param_with_default('Number of processes to spin up when using process-based threading', 1))
-        save = bool(ask_param_with_default('Save at the end', True))
+        if self.mode == 0:
+            # Intercative mode
+            train_dir = ask_param_with_default('Training images data dir', 'data/train')
+            n_train_samples = int(ask_param_with_default('Number of training samples ', 31367))
+            validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
+            n_valid_samples = int(ask_param_with_default('Number of validation samples ', 7842))
+            batch_size = int(ask_param_with_default('Batch size to use for training', self.batch_size))
+            epochs = int(ask_param_with_default('Number of epochs for training', self.epochs))
+            image_shape = int(ask_param_with_default(
+                'Dimension of all images, must be the same vertically and horizontally', self.image_shape))
+            workers = int(ask_param_with_default('Number of processes to spin up when using process-based threading',
+                                                 self.num_workers))
+            save = bool(ask_param_with_default('Save at the end', True))
+        else:
+            # Script mode
+            train_dir = 'data/train'
+            n_train_samples = 31367
+            validation_dir = 'data/validation'
+            n_valid_samples = 7842
+            batch_size = self.batch_size
+            epochs = self.epochs
+            image_shape = self.image_shape
+            workers = self.num_workers
+            save = True
 
         start = time()
 
@@ -212,16 +283,31 @@ class MenuController:
             self.model.save_weights('model/weights/train_' + now + '.h5')
 
     def save_model(self):
-        model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
+        if self.mode == 0:
+            # Intercative mode
+            model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
+            weights_out = ask_param_with_default('Where do want to save the weights', 'model/weights/weights.h5')
+        else:
+            # Script mode
+            model_out = 'model/model.json'
+            weights_out = 'model/weights/weights.h5'
+
         self.model.save_model(model_out)
-        weights_out = ask_param_with_default('Where do want to save the weights', 'model/weights/weights.h5')
         self.model.save_weights(weights_out)
 
     def load_model(self):
-        model_path = ask_param_with_default('Location of the saved model', 'model/model.json')
-        weights_path = ask_param_with_default('Location of the saved weights', 'model/weights/weights.h5')
-        image_shape = ask_param_with_default(
-            'Dimension of all images, must be the same vertically and horizontally', self.image_shape)
+        if self.mode == 0:
+            # Intercative mode
+            model_path = ask_param_with_default('Location of the saved model', self.model_path)
+            weights_path = ask_param_with_default('Location of the saved weights', self.weights_path)
+            image_shape = ask_param_with_default(
+                'Dimension of all images, must be the same vertically and horizontally', self.image_shape)
+        else:
+            # Script mode
+            model_path = self.model_path
+            weights_path = self.weights_path
+            image_shape = self.image_shape
+
         self.model = Model(input_shape=(image_shape, image_shape, 1))
         self.model.load_model(model_path)
         self.model.compile()
@@ -230,11 +316,19 @@ class MenuController:
         self.model_created = True
 
     def evaluate_images(self):
-        eval_data_folder = ask_param_with_default('Path of the test data', 'data/test')
-        n_test_samples = int(ask_param_with_default('Number of test samples', 12630))
-        batch_size = int(ask_param_with_default('Batch size to use for testing', self.batch_size))
-        image_shape = int(ask_param_with_default(
-            'Dimension of all images, must be the same vertically and horizontally', self.image_shape))
+        if self.mode == 0:
+            # Intercative mode
+            eval_data_folder = ask_param_with_default('Path of the test data', 'data/test')
+            n_test_samples = int(ask_param_with_default('Number of test samples', 12630))
+            batch_size = int(ask_param_with_default('Batch size to use for testing', self.batch_size))
+            image_shape = int(ask_param_with_default(
+                'Dimension of all images, must be the same vertically and horizontally', self.image_shape))
+        else:
+            # Script mode
+            eval_data_folder = 'data/test'
+            n_test_samples = 12630
+            batch_size = self.batch_size
+            image_shape = self.image_shape
 
         test_generator = DataGenerator(eval_data_folder, batch_size=batch_size, image_shape=(image_shape, image_shape))
         if self.model_created is False:
@@ -256,11 +350,25 @@ class MenuController:
         print('Goodbye')
 
     def error_action(self):
-        print("Possible actions are 1, 2, 3, 4, 5, 6, 8, 9")
+        print("Possible actions are 0, 1, 2, 3, 4, 5, 6, 8, 9")
+
+    def execute_actions(self):
+        if self.mode == 1:
+            for action_name in self.actions:
+                print('Executing action: ' + ACTIONS[str(action_name)])
+                try:
+                    action = getattr(self, ACTIONS[str(action_name)])
+                    action()
+                except AttributeError:
+                    print('Action not exist')
+
+        else:
+            print("Current version 0 -> Interactive, use the menu")
 
 
 def print_menu():
     print("\n\nPossible actions: (select the action)", end='\n\n')
+    print('0) Download training and testing datasets')
     print('1) Prepare training datatable')
     print('2) Split training data')
     print('3) Prepare test data')

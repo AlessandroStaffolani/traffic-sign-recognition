@@ -40,7 +40,11 @@ def help_message():
     print('--batch-size [size]\t\t\tsize of the batch (default: 400)')
     print('--epochs [number]\t\t\tnumber of epochs for training (default: 10)')
     print('--image-shape [shape]\t\t\tfinal size of all images after preprocessing '
-          '(default: 46) images will be squared', end='\n\n')
+          '(default: 46) images will be squared')
+    print('--n-workers [number]\t\t\tnumber of workers to use to fit (default: 1)')
+    print('--model-file [file_path]\t\tpath to the model json file that you want load (default: model/model.json)')
+    print('--weights-file [file_path]\t\tpath to the weights h5 file that you want load '
+          '(default: model/weights/weights.h5)', end='\n\n')
     print('Possible actions:')
     print('1) Prepare training datatable')
     print('2) Split training data')
@@ -59,6 +63,9 @@ def handle_arguments(args):
     batch_size = 400
     epochs = 10
     image_shape = 46
+    n_workers = 1
+    model_file = 'model/model.json'
+    weights_file = 'model/weights/weights.h5'
     i = 0
     while i < (len(args) - 1):
         arg = args[i]
@@ -77,6 +84,12 @@ def handle_arguments(args):
             epochs = int(arg_val)
         if arg == '--image-shape':
             image_shape = int(arg_val)
+        if arg == '--n-workers':
+            n_workers = int(arg_val)
+        if arg == '--model-file':
+            model_file = arg_val
+        if arg == '--weights-file':
+            weights_file = arg_val
 
         i += 2
 
@@ -86,11 +99,13 @@ def handle_arguments(args):
     if len(args) == 1:
         need_helps = True
 
-    return need_helps, random_seed, mode, actions, batch_size, epochs, image_shape
+    return need_helps, random_seed, mode, actions, batch_size, epochs, image_shape, n_workers, model_file, weights_file
 
 
 def main(argv):
-    need_helps, random_seed, mode, actions, batch_size, epochs, image_shape = handle_arguments(argv[1:])
+    need_helps, random_seed, mode,\
+        actions, batch_size, epochs, \
+        image_shape, n_workers, model_file, weigths_file = handle_arguments(argv[1:])
 
     if need_helps:
         help_message()
@@ -100,7 +115,8 @@ def main(argv):
 
     welcome_msg(random_seed)
 
-    menu = MenuController(mode=mode, actions=actions, batch_size=batch_size, epochs=epochs, image_shape=image_shape)
+    menu = MenuController(mode=mode, actions=actions, batch_size=batch_size, epochs=epochs, image_shape=image_shape,
+                          num_workers=n_workers, model_path=model_file, weights_path=weigths_file)
 
     # df = pd.read_csv('data/training/training_table.csv')
     # print(df.info())
