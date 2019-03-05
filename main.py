@@ -50,9 +50,8 @@ def help_message():
     print('2) Split training data')
     print('3) Prepare test data')
     print('4) Train all images')
-    print('5) Save trained model')
-    print('6) Load existing model from json')
-    print('7) Test model performance')
+    print('5) Load existing model from json')
+    print('6) Test model performance')
 
 
 def handle_arguments(args):

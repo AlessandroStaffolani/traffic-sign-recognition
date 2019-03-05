@@ -41,9 +41,11 @@ callback_table = {
 
 class Model:
 
-    def __init__(self, layer_activation='relu', num_output=43,
+    def __init__(self, name='Simple Model', auto_save=True, layer_activation='relu', num_output=43,
                  output_activation='softmax', kernel_size=3, input_shape=(46, 46)):
         self.model = None
+        self.name = name
+        self.auto_save = auto_save
         self.layers_activation = layer_activation
         self.num_output = num_output
         self.output_activation = output_activation
@@ -84,9 +86,13 @@ class Model:
             now = strftime("%d-%m-%Y_%H-%M", gmtime())
             callbacks.append(TensorBoard(log_dir='log/tensorboard-logs-' + str(now), write_grads=1,
                                          batch_size=batch_size, write_images=True))
-
-        return self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs,
-                              batch_size=batch_size, callbacks=callbacks)
+        if self.auto_save:
+            self.auto_save_model()
+        history = self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs,
+                                 batch_size=batch_size, callbacks=callbacks)
+        if self.auto_save:
+            self.auto_save_weights(epochs)
+        return history
 
     def fit_generator(self, generator, steps_per_epoch=1000, epochs=10, validation_data=None, validation_steps=None,
                       workers=1, use_multiprocessing=False, initial_epoch=0):
@@ -98,13 +104,18 @@ class Model:
             callbacks.append(TensorBoard(log_dir='log/tensorboard-logs-' + str(now), write_grads=1,
                                          batch_size=steps_per_epoch, write_images=True))
 
-        return self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
-                                        validation_data=validation_data,
-                                        validation_steps=validation_steps,
-                                        callbacks=callbacks,
-                                        workers=workers,
-                                        use_multiprocessing=use_multiprocessing,
-                                        initial_epoch=initial_epoch)
+        if self.auto_save:
+            self.auto_save_model()
+        history = self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
+                                           validation_data=validation_data,
+                                           validation_steps=validation_steps,
+                                           callbacks=callbacks,
+                                           workers=workers,
+                                           use_multiprocessing=use_multiprocessing,
+                                           initial_epoch=initial_epoch)
+        if self.auto_save:
+            self.auto_save_weights(epochs)
+        return history
 
     def evaluate(self, test_data, test_labels, batch_size=None, verbose=1):
         return self.model.evaluate(test_data, test_labels, batch_size=batch_size, verbose=verbose)
@@ -120,6 +131,21 @@ class Model:
                           use_multiprocessing=False, verbose=0):
         return self.model.predict_generator(generator, steps, callbacks, max_queue_size, workers, use_multiprocessing,
                                             verbose)
+
+    def auto_save_model(self):
+        model_name = self.name.replace(' ', '_').lower()
+        model_name = model_name + '.json'
+        path = 'model/' + model_name
+        print('Saving model to: ' + path)
+        self.save_model(path)
+
+    def auto_save_weights(self, epochs):
+        weights_name = self.name.replace(' ', '_').lower() + '_' + str(epochs) + '-epochs'
+        now = strftime("%d-%m-%Y_%H-%M", gmtime())
+        weights_name = weights_name + '_' + now + '.h5'
+        path = 'model/weights/' + weights_name
+        print('Saving weights to: ' + path)
+        self.save_weights(path)
 
     def save_model(self, out_path):
         json_model = self.model.to_json()

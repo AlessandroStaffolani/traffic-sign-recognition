@@ -19,9 +19,8 @@ ACTIONS = {
     '2': 'split_training_data',
     '3': 'prepare_test_data',
     '4': 'train_all_images',
-    '5': 'save_model',
-    '6': 'load_model',
-    '7': 'evaluate_images',
+    '5': 'load_model',
+    '6': 'evaluate_images',
     '8': 'clean_log_folder',
     '9': 'close'
 }
@@ -109,16 +108,11 @@ class MenuController:
             self.train_all_images()
 
         elif self.current_action == 5:
-            # save model
-
-            self.save_model()
-
-        elif self.current_action == 6:
             # load model
 
             self.load_model()
 
-        elif self.current_action == 7:
+        elif self.current_action == 6:
             # Evaluate model
 
             self.evaluate_images()
@@ -224,7 +218,6 @@ class MenuController:
                 'Dimension of all images, must be the same vertically and horizontally', self.image_shape))
             workers = int(ask_param_with_default('Number of processes to spin up when using process-based threading',
                                                  self.num_workers))
-            save = bool(ask_param_with_default('Save at the end', True))
         else:
             # Script mode
             train_dir = 'data/train'
@@ -235,7 +228,6 @@ class MenuController:
             epochs = self.epochs
             image_shape = self.image_shape
             workers = self.num_workers
-            save = True
 
         start = time()
 
@@ -276,24 +268,6 @@ class MenuController:
         print('Accuracy history:\t' + str(history.history['acc']))
         print('Loss validation history:\t' + str(history.history['val_loss']))
         print('Accuracy validation history:\t' + str(history.history['val_acc']))
-
-        if save is True:
-            now = strftime("%d-%m-%Y_%H:%M:%S", gmtime())
-            self.model.save_model('model/train_' + now + '.json')
-            self.model.save_weights('model/weights/train_' + now + '.h5')
-
-    def save_model(self):
-        if self.mode == 0:
-            # Intercative mode
-            model_out = ask_param_with_default('Where do you want to save the model', 'model/model.json')
-            weights_out = ask_param_with_default('Where do want to save the weights', 'model/weights/weights.h5')
-        else:
-            # Script mode
-            model_out = 'model/model.json'
-            weights_out = 'model/weights/weights.h5'
-
-        self.model.save_model(model_out)
-        self.model.save_weights(weights_out)
 
     def load_model(self):
         if self.mode == 0:
@@ -373,9 +347,8 @@ def print_menu():
     print('2) Split training data')
     print('3) Prepare test data')
     print('4) Train all images')
-    print('5) Save trained model')
-    print('6) Load existing model from json')
-    print('7) Test model performance')
+    print('5) Load existing model from json')
+    print('6) Test model performance')
     print('\n-- System --------------')
     print('8) Clean log folder')
     print('9) Exit', end='\n\n')
