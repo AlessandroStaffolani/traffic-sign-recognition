@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import keras
 
-from src.controllers.MenuController import MenuController
+from src.init import init_directories
 
 
 def welcome_msg(random_seed):
@@ -46,6 +46,7 @@ def help_message():
     print('--weights-file [file_path]\t\tpath to the weights h5 file that you want load '
           '(default: model/weights/weights.h5)', end='\n\n')
     print('Possible actions:')
+    print('0) Download training and testing datasets')
     print('1) Prepare training datatable')
     print('2) Split training data')
     print('3) Prepare test data')
@@ -65,29 +66,30 @@ def handle_arguments(args):
     n_workers = 1
     model_file = 'model/model.json'
     weights_file = 'model/weights/weights.h5'
+    first_init = False
     i = 0
     while i < (len(args) - 1):
         arg = args[i]
         arg_val = args[i + 1]
         if arg == '-h' or arg == '--help':
             need_helps = True
-        if arg == '-r' or arg == '--random-seed':
+        elif arg == '-r' or arg == '--random-seed':
             random_seed = int(arg_val)
-        if arg == '-m' or arg == '--mode':
+        elif arg == '-m' or arg == '--mode':
             mode = int(arg_val)
-        if arg == '-a' or arg == '--action':
+        elif arg == '-a' or arg == '--action':
             actions = arg_val.split(',')
-        if arg == '--batch-size':
+        elif arg == '--batch-size':
             batch_size = int(arg_val)
-        if arg == '--epochs':
+        elif arg == '--epochs':
             epochs = int(arg_val)
-        if arg == '--image-shape':
+        elif arg == '--image-shape':
             image_shape = int(arg_val)
-        if arg == '--n-workers':
+        elif arg == '--n-workers':
             n_workers = int(arg_val)
-        if arg == '--model-file':
+        elif arg == '--model-file':
             model_file = arg_val
-        if arg == '--weights-file':
+        elif arg == '--weights-file':
             weights_file = arg_val
 
         i += 2
@@ -109,6 +111,12 @@ def main(argv):
     if need_helps:
         help_message()
         exit(1)
+
+    try:
+        from src.controllers.MenuController import MenuController
+    except FileNotFoundError:
+        init_directories()
+        from src.controllers.MenuController import MenuController
 
     np.random.seed(random_seed)
 

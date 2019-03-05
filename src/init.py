@@ -4,7 +4,7 @@ from io import BytesIO
 from zipfile import ZipFile
 from urllib.request import urlopen
 
-from src.utility.file_utility import remove_folder_tree, move_file, move_directory
+from src.utility.file_utility import remove_folder_tree, move_file, move_directory, create_directory
 
 
 def init_training_data_folder(training_zip_path='http://benchmark.ini.rub.de/Dataset/GTSRB_Final_Training_Images.zip',
@@ -27,6 +27,15 @@ def init_testing_id_file(testing_zip_id_path='http://benchmark.ini.rub.de/Datase
                          out_path='data/testing'):
     extract_dir_from_web(testing_zip_id_path, out_path)
     move_file('data/testing/GT-final_test.csv', out_path + '/testing_table.csv')
+
+
+def init_directories(training_path='data/training', testing_path='data/testing'):
+    create_directory('model')
+    create_directory('model/checkpoints')
+    create_directory('model/weights')
+    create_directory('log')
+    create_directory(training_path)
+    create_directory(testing_path)
 
 
 def extract_dir_from_web(url, out_dir):

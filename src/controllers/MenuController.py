@@ -4,7 +4,7 @@ from src.utility.dataset_utility import get_labels
 from src.utility.file_utility import get_directory_files, remove_file
 from src.utility.dataset_utility import create_traing_data_table, split_train_data, prepare_test_data
 
-from src.init import init_training_data_folder, init_testing_data_folder, init_testing_id_file
+from src.init import init_training_data_folder, init_testing_data_folder, init_testing_id_file, init_directories
 
 from src.preprocessors.HistogramEqualizer import HistogramEqualizer
 from src.preprocessors.Normalizer import Normalizer
@@ -142,6 +142,7 @@ class MenuController:
             training_out_path = 'data/training'
             testing_out_path = 'data/testing'
 
+        init_directories(training_out_path, testing_out_path)
         init_training_data_folder(out_path=training_out_path)
         init_testing_data_folder(out_path=testing_out_path)
         init_testing_id_file(out_path=testing_out_path)
@@ -169,13 +170,13 @@ class MenuController:
                                                      'data/training/training_table.csv')
             train_out_path = ask_param_with_default('Train data output path', 'data/train')
             validation_out_path = ask_param_with_default('Validation data output path', 'data/validation')
-            validation_size = ask_param_with_default('Validation set proportion', 0.2)
+            validation_size = ask_param_with_default('Validation set proportion', 0.25)
         else:
             # Script mode
             data_table_path = 'data/training/training_table.csv'
             train_out_path = 'data/train'
             validation_out_path = 'data/validation'
-            validation_size = 'Validation set proportion', 0.2
+            validation_size = 0.25
 
         print()
         start = time()
@@ -209,9 +210,9 @@ class MenuController:
         if self.mode == 0:
             # Intercative mode
             train_dir = ask_param_with_default('Training images data dir', 'data/train')
-            n_train_samples = int(ask_param_with_default('Number of training samples ', 31367))
+            n_train_samples = int(ask_param_with_default('Number of training samples ', 29406))
             validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
-            n_valid_samples = int(ask_param_with_default('Number of validation samples ', 7842))
+            n_valid_samples = int(ask_param_with_default('Number of validation samples ', 9803))
             batch_size = int(ask_param_with_default('Batch size to use for training', self.batch_size))
             epochs = int(ask_param_with_default('Number of epochs for training', self.epochs))
             image_shape = int(ask_param_with_default(
@@ -221,9 +222,9 @@ class MenuController:
         else:
             # Script mode
             train_dir = 'data/train'
-            n_train_samples = 31367
+            n_train_samples = 29406
             validation_dir = 'data/validation'
-            n_valid_samples = 7842
+            n_valid_samples = 9803
             batch_size = self.batch_size
             epochs = self.epochs
             image_shape = self.image_shape

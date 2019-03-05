@@ -44,7 +44,7 @@ def create_traing_data_table(folder_path, output_path, img_ext='ppm'):
     datatable.to_csv(output_path, index=False, header=True)
 
 
-def split_train_data(train_out_folder, validation_out_folder, dataset_path, validation_size=0.2, labels=43):
+def split_train_data(train_out_folder, validation_out_folder, dataset_path, validation_size=0.25, labels=43):
     dataframe = pd.read_csv(dataset_path)
 
     x_train, x_valid, y_train, y_valid = train_test_split(dataframe['image_path'].values, dataframe['label'].values,
