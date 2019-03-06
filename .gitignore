@@ -141,3 +141,7 @@ venv.bak/
 
 # Data folder
 /data/
+/log/
+/model/
+/test_keras.py
+/tmp/

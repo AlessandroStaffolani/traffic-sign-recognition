@@ -1,0 +1,17 @@
+
+# Ignore data, log and model folder
+data
+log
+model
+
+# Jupyter checkpoints
+.ipynb_checkpoints
+
+# venv
+venv
+
+# idea folder
+.idea
+
+# unuseful file
+test_keras.py
