@@ -29,8 +29,8 @@ ACTIONS = {
 class MenuController:
 
     def __init__(self, mode=0, actions=None, labels_count=43, batch_size=400, epochs=10,
-                 image_shape=46, num_workers=1, model_path='model/model.json', weights_path='model/weights/weights.h5',
-                 log_folder='log/'):
+                 image_shape=46, num_workers=1, model_path='model/simple_model.json', weights_path='model/weights/weights.h5',
+                 split_factor=0.25, n_train_samples=29406, n_validation_samples=9803, log_folder='log/'):
         self.labels = get_labels(labels_count)
         self.mode = mode
         self.actions = actions
@@ -40,6 +40,9 @@ class MenuController:
         self.num_workers = num_workers
         self.model_path = model_path
         self.weights_path = weights_path
+        self.split_factor = split_factor
+        self.n_train_samples = n_train_samples
+        self.n_validation_samples = n_validation_samples
         self.log_folder = log_folder
         self.model = None
         self.model_created = False
@@ -72,12 +75,15 @@ class MenuController:
             print('\nSCRIPT MODE:', end='\n\n')
             print('Actions to execute: ' + str(self.actions))
             print('Configuration:')
-            print('\tbatch-size:\t' + str(self.batch_size))
-            print('\tepochs:\t\t' + str(self.epochs))
-            print('\timage-shape:\t' + str(self.image_shape))
-            print('\tnum-workers:\t' + str(self.num_workers))
-            print('\tmodel-file:\t' + self.model_path)
-            print('\tweights-file:\t' + self.weights_path, end='\n\n')
+            print('\tbatch-size:\t\t' + str(self.batch_size))
+            print('\tepochs:\t\t\t' + str(self.epochs))
+            print('\timage-shape:\t\t' + str(self.image_shape))
+            print('\tnum-workers:\t\t' + str(self.num_workers))
+            print('\tmodel-file:\t\t' + self.model_path)
+            print('\tweights-file:\t\t' + self.weights_path)
+            print('\tsplit-factor:\t\t' + str(self.split_factor))
+            print('\tn-train-samples:\t' + str(self.n_train_samples))
+            print('\tn-validation-samples:\t' + str(self.n_validation_samples), end='\n\n')
 
             self.execute_actions()
 
@@ -170,13 +176,13 @@ class MenuController:
                                                      'data/training/training_table.csv')
             train_out_path = ask_param_with_default('Train data output path', 'data/train')
             validation_out_path = ask_param_with_default('Validation data output path', 'data/validation')
-            validation_size = ask_param_with_default('Validation set proportion', 0.25)
+            validation_size = ask_param_with_default('Validation set proportion', self.split_factor)
         else:
             # Script mode
             data_table_path = 'data/training/training_table.csv'
             train_out_path = 'data/train'
             validation_out_path = 'data/validation'
-            validation_size = 0.25
+            validation_size = self.split_factor
 
         print()
         start = time()
@@ -210,9 +216,9 @@ class MenuController:
         if self.mode == 0:
             # Intercative mode
             train_dir = ask_param_with_default('Training images data dir', 'data/train')
-            n_train_samples = int(ask_param_with_default('Number of training samples ', 29406))
+            n_train_samples = int(ask_param_with_default('Number of training samples ', self.n_train_samples))
             validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
-            n_valid_samples = int(ask_param_with_default('Number of validation samples ', 9803))
+            n_valid_samples = int(ask_param_with_default('Number of validation samples ', self.n_validation_samples))
             batch_size = int(ask_param_with_default('Batch size to use for training', self.batch_size))
             epochs = int(ask_param_with_default('Number of epochs for training', self.epochs))
             image_shape = int(ask_param_with_default(
@@ -222,9 +228,9 @@ class MenuController:
         else:
             # Script mode
             train_dir = 'data/train'
-            n_train_samples = 29406
+            n_train_samples = self.n_train_samples
             validation_dir = 'data/validation'
-            n_valid_samples = 9803
+            n_valid_samples = self.n_validation_samples
             batch_size = self.batch_size
             epochs = self.epochs
             image_shape = self.image_shape

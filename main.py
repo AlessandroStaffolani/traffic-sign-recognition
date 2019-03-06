@@ -44,7 +44,10 @@ def help_message():
     print('--n-workers [number]\t\t\tnumber of workers to use to fit (default: 1)')
     print('--model-file [file_path]\t\tpath to the model json file that you want load (default: model/model.json)')
     print('--weights-file [file_path]\t\tpath to the weights h5 file that you want load '
-          '(default: model/weights/weights.h5)', end='\n\n')
+          '(default: model/weights/weights.h5)')
+    print('--split-factor [float_number]\t\tpercentage of training data to use as validation data (default: 0.25)')
+    print('--n-train-samples [number]\t\tnumber of image in train dataset (defualt: 29406)')
+    print('--n-validation-samples [number]\t\tnumber of image in validation dataset (defualt: 9803)', end='\n\n')
     print('Possible actions:')
     print('0) Download training and testing datasets')
     print('1) Prepare training datatable')
@@ -66,7 +69,9 @@ def handle_arguments(args):
     n_workers = 1
     model_file = 'model/model.json'
     weights_file = 'model/weights/weights.h5'
-    first_init = False
+    split_factor = 0.25
+    n_train_samples = 29406
+    n_validation_samples = 9803
     i = 0
     while i < (len(args) - 1):
         arg = args[i]
@@ -91,6 +96,12 @@ def handle_arguments(args):
             model_file = arg_val
         elif arg == '--weights-file':
             weights_file = arg_val
+        elif arg == '--split-factor':
+            split_factor = float(arg_val)
+        elif arg == '--n-train-samples':
+            n_train_samples = int(arg_val)
+        elif arg == '--n-validation-samples':
+            n_validation_samples = int(arg_val)
 
         i += 2
 
@@ -100,13 +111,15 @@ def handle_arguments(args):
     if len(args) == 1:
         need_helps = True
 
-    return need_helps, random_seed, mode, actions, batch_size, epochs, image_shape, n_workers, model_file, weights_file
+    return need_helps, random_seed, mode, actions, batch_size, epochs, image_shape, \
+           n_workers, model_file, weights_file, split_factor, n_train_samples, n_validation_samples
 
 
 def main(argv):
-    need_helps, random_seed, mode,\
-        actions, batch_size, epochs, \
-        image_shape, n_workers, model_file, weigths_file = handle_arguments(argv[1:])
+    need_helps, random_seed, mode, \
+    actions, batch_size, epochs, \
+    image_shape, n_workers, model_file, weigths_file, \
+    split_factor, n_train_samples, n_validation_samples = handle_arguments(argv[1:])
 
     if need_helps:
         help_message()
@@ -123,7 +136,9 @@ def main(argv):
     welcome_msg(random_seed)
 
     menu = MenuController(mode=mode, actions=actions, batch_size=batch_size, epochs=epochs, image_shape=image_shape,
-                          num_workers=n_workers, model_path=model_file, weights_path=weigths_file)
+                          num_workers=n_workers, model_path=model_file, weights_path=weigths_file,
+                          split_factor=split_factor, n_train_samples=n_train_samples,
+                          n_validation_samples=n_validation_samples)
 
     # df = pd.read_csv('data/training/training_table.csv')
     # print(df.info())

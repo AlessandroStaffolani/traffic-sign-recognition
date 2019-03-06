@@ -156,13 +156,19 @@ class Model:
         self.model.save_weights(out_path)
 
     def load_model(self, file):
-        json_file = open(file, 'r')
-        loaded_model_json = json_file.read()
-        json_file.close()
-        self.model = model_from_json(loaded_model_json)
+        try:
+            json_file = open(file, 'r')
+            loaded_model_json = json_file.read()
+            json_file.close()
+            self.model = model_from_json(loaded_model_json)
+        except FileNotFoundError:
+            print(file + ' not found')
 
     def load_weights(self, file):
-        self.model.load_weights(file)
+        try:
+            self.model.load_weights(file)
+        except FileNotFoundError:
+            print(file + ' not found')
 
     def init_callbacks(self, callbacks_names=tuple(('ModelCheckpoint', 'EarlyStopping', 'TensorBoard')),
                        callbacks=None):
