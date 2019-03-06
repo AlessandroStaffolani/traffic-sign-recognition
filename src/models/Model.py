@@ -13,7 +13,7 @@ callback_table = {
     'LogCallback': {
         'class': LogCallback,
         'args': {
-            'log_file': 'log/simple-model.log',
+            'log_file': 'log/model.log',
             'level': logging.INFO,
             'format': '%(levelname)s: %(asctime)s: %(message)s'
         }

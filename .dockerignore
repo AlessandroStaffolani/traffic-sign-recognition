@@ -6,6 +6,7 @@ model
 
 # Jupyter checkpoints
 .ipynb_checkpoints
+iteractive_analysis.ipynb
 
 # venv
 venv
@@ -13,5 +14,11 @@ venv
 # idea folder
 .idea
 
-# unuseful file
+# docker folder
+docker
+
+# useless files
 test_keras.py
+LICENSE
+README.md
+test.py

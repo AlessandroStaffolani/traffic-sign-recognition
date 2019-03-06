@@ -7,6 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# ENTRYPOINT ["python", "-u", "./main.py", "-m", "1", "-a", "0,1,2,3"]
+CMD ["python", "-u", "./main.py"]
 
-CMD ["python", "-u", "./main.py", "-m", "1", "-a", "0,1,2,3", "&&", "python", "./main.py"]
+# docker run -v $(pwd)/data:/usr/src/app/data -v $(pwd)/log:/usr/src/app/log -v $(pwd)/model:/usr/src/app/model --name cnn-app traffic-sign-recognition python main.py <args>
