@@ -4,10 +4,9 @@ from time import gmtime, strftime
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
 from keras.models import model_from_json
-from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard
+from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard, CSVLogger
 
 from src.models.callbacks.LogCallback import LogCallback
-
 
 callback_table = {
     'LogCallback': {
@@ -16,6 +15,14 @@ callback_table = {
             'log_file': 'log/model.log',
             'level': logging.INFO,
             'format': '%(levelname)s: %(asctime)s: %(message)s'
+        }
+    },
+    'CSVLogger': {
+        'class': CSVLogger,
+        'args': {
+            'filename': 'log/last_history.csv',
+            'separator': ',',
+            'append': False
         }
     },
     'ModelCheckpoint': {
@@ -185,7 +192,8 @@ class Model:
         except FileNotFoundError:
             print(file + ' not found')
 
-    def init_callbacks(self, callbacks_names=tuple(('LogCallback', 'ModelCheckpoint', 'EarlyStopping', 'TensorBoard')),
+    def init_callbacks(self, callbacks_names=tuple(
+        ('LogCallback', 'CSVLogger', 'ModelCheckpoint', 'EarlyStopping', 'TensorBoard')),
                        callbacks=None):
         if callbacks_names is None and callbacks is not None:
             self.callbacks = callbacks
