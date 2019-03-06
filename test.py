@@ -8,7 +8,6 @@ from keras.utils import to_categorical
 from zipfile import ZipFile
 
 from src.models.Model import Model
-from src.Dataset import Dataset
 from src.utility.preprocessor_utility import preprocess_image
 from src.utility.dataset_utility import create_traing_data_table
 from src.DataGenerator import DataGenerator
@@ -34,16 +33,6 @@ def test_dirlist():
 def test_cnn():
     cnn = Model(num_output=43)
     print(cnn.model.to_json())
-
-
-def test_dataset():
-    labels = get_labels(43, False)
-    dataset = Dataset('data/training/images', preprocess_image, labels=labels)
-
-    dataframe = dataset.get_images_generator('data/training/training_table.csv')
-    for i in range(100):
-        row = next(dataframe)
-        print(row[0].shape, row[1])
 
 
 def test_dataset_table_creation():
