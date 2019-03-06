@@ -79,5 +79,5 @@ docker run -d -v $(pwd)/log:/tensorboard -p 6006:6006 --name tensorboard tensorb
 ```
 - run jupyter and then use `docker logs jupyter` to copy your token and finally navigate to `http://localhost:8888` :
 ```
-docker run -d -v $(pwd)/:/jupyter -p 8888:8888 --name jupyter jupyter
+docker run -d -v $(pwd)/:/jupyter -p 8888:8888 -e JUPYTER_FILE_PATH='iteractive_analysis.ipynb' --name jupyter jupyter
 ```
