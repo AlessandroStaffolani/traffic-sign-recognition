@@ -7,7 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD [ "python", "./main.py" ]
+# ENTRYPOINT ["python", "-u", "./main.py", "-m", "1", "-a", "0,1,2,3"]
 
-
-
+CMD ["python", "-u", "./main.py", "-m", "1", "-a", "0,1,2,3", "&&", "python", "./main.py"]

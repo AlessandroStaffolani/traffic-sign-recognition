@@ -70,7 +70,7 @@ class Model:
         self.model = Sequential()
 
         self.model.add(
-            Conv2D(filters=32, kernel_size=self.kernel_size, activation=self.layers_activation,
+            Conv2D(filters=230, kernel_size=self.kernel_size, activation=self.layers_activation,
                    strides=(1, 1), padding='same', input_shape=self.input_shape))
 
         self.model.add(MaxPool2D(pool_size=(2, 2), strides=2))
@@ -78,7 +78,7 @@ class Model:
         self.model.add(Dropout(0.2))
 
         self.model.add(
-            Conv2D(filters=64, kernel_size=self.kernel_size, activation=self.layers_activation, strides=(1, 1),
+            Conv2D(filters=460, kernel_size=self.kernel_size, activation=self.layers_activation, strides=(1, 1),
                    padding='valid'))
 
         self.model.add(MaxPool2D(pool_size=(2, 2), strides=2))
@@ -97,7 +97,8 @@ class Model:
         else:
             callbacks = self.callbacks
             now = strftime("%d-%m-%Y_%H-%M", gmtime())
-            callbacks.append(TensorBoard(log_dir='log/tensorboard-logs-' + str(now), write_grads=1,
+            log_file = 'log/tensorboard-logs-' + str(now)
+            callbacks.append(TensorBoard(log_dir=log_file, write_grads=1,
                                          batch_size=batch_size, write_images=True))
         if self.auto_save:
             self.auto_save_model()
@@ -114,7 +115,8 @@ class Model:
         else:
             callbacks = self.callbacks
             now = strftime("%d-%m-%Y_%H-%M", gmtime())
-            callbacks.append(TensorBoard(log_dir='log/tensorboard-logs-' + str(now), write_grads=1,
+            log_file = 'log/tensorboard-logs-' + str(now)
+            callbacks.append(TensorBoard(log_dir=log_file, write_grads=1,
                                          batch_size=steps_per_epoch, write_images=True))
 
         if self.auto_save:
