@@ -11,4 +11,4 @@ USER jupyter
 
 CMD ["jupyter", "trust", "${JUPYTER_FILE_PATH}", "&&", "jupyter", "notebook", "--no-browser", "--ip=0.0.0.0", "--notebook-dir=/jupyter"]
 
-# docker run -d -v $(pwd)/:/jupyter -p 8888:8888 -e JUPYTER_FILE_PATH='iteractive_analysis.ipynb' --name jupyter jupyter
+# docker run -d -v $(pwd)/:/jupyter -p 8888:8888 -e JUPYTER_FILE_PATH="/jupyter/iteractive_analysis.ipynb" --name jupyter jupyter

@@ -193,7 +193,7 @@ class Model:
             print(file + ' not found')
 
     def init_callbacks(self, callbacks_names=tuple(
-        ('LogCallback', 'CSVLogger', 'ModelCheckpoint', 'EarlyStopping', 'TensorBoard')),
+        ('LogCallback', 'CSVLogger', 'ModelCheckpoint', 'TensorBoard')),  # Removed EarlyStopping
                        callbacks=None):
         if callbacks_names is None and callbacks is not None:
             self.callbacks = callbacks
