@@ -11,6 +11,7 @@ from src.preprocessors.Normalizer import Normalizer
 
 from src.DataGenerator import DataGenerator
 from src.models.Model import Model
+from src.models.SGDModel import SGDModel
 from src.Pipeline import Pipeline
 
 ACTIONS = {
@@ -25,15 +26,21 @@ ACTIONS = {
     '9': 'close'
 }
 
+MODELS = {
+    '0': Model,
+    '1': SGDModel
+}
+
 
 class MenuController:
 
-    def __init__(self, mode=0, actions=None, labels_count=43, batch_size=400, epochs=10,
+    def __init__(self, mode=0, actions=None, model='0', labels_count=43, batch_size=400, epochs=10,
                  image_shape=46, num_workers=1, model_path='model/simple_model.json', weights_path='model/weights/weights.h5',
                  split_factor=0.25, n_train_samples=29406, n_validation_samples=9803, log_folder='log/'):
         self.labels = get_labels(labels_count)
         self.mode = mode
         self.actions = actions
+        self.model_code = model
         self.batch_size = batch_size
         self.epochs = epochs
         self.image_shape = image_shape
@@ -75,6 +82,7 @@ class MenuController:
             print('\nSCRIPT MODE:', end='\n\n')
             print('Actions to execute: ' + str(self.actions))
             print('Configuration:')
+            print('\tmodel-code:\t\t' + str(self.model_code))
             print('\tbatch-size:\t\t' + str(self.batch_size))
             print('\tepochs:\t\t\t' + str(self.epochs))
             print('\timage-shape:\t\t' + str(self.image_shape))
@@ -215,6 +223,7 @@ class MenuController:
     def train_all_images(self):
         if self.mode == 0:
             # Intercative mode
+            model_code = ask_param_with_default('Model to be used from these: ' + str(MODELS), self.model_code)
             train_dir = ask_param_with_default('Training images data dir', 'data/train')
             n_train_samples = int(ask_param_with_default('Number of training samples ', self.n_train_samples))
             validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
@@ -227,6 +236,7 @@ class MenuController:
                                                  self.num_workers))
         else:
             # Script mode
+            model_code = self.model_code
             train_dir = 'data/train'
             n_train_samples = self.n_train_samples
             validation_dir = 'data/validation'
@@ -235,6 +245,8 @@ class MenuController:
             epochs = self.epochs
             image_shape = self.image_shape
             workers = self.num_workers
+
+        self.model_code = model_code
 
         start = time()
 
@@ -247,11 +259,7 @@ class MenuController:
                                              preprocessing_function=self.pipeline.evaluate)
 
         if self.model_created is False:
-            self.model = Model(input_shape=(image_shape, image_shape, 1))
-            self.model.create_model()
-            self.model.compile()
-            self.model.init_callbacks()
-            self.model_created = True
+            self.create_model(image_shape=image_shape)
 
         if workers > 1:
             use_multiprocessing = True
@@ -289,12 +297,7 @@ class MenuController:
             weights_path = self.weights_path
             image_shape = self.image_shape
 
-        self.model = Model(input_shape=(image_shape, image_shape, 1))
-        self.model.load_model(model_path)
-        self.model.compile()
-        self.model.load_weights(weights_path)
-        self.model.init_callbacks()
-        self.model_created = True
+        self.create_model(loaded=True, image_shape=image_shape, model_path=model_path, weights_path=weights_path)
 
     def evaluate_images(self):
         if self.mode == 0:
@@ -345,6 +348,22 @@ class MenuController:
 
         else:
             print("Current version 0 -> Interactive, use the menu")
+
+    def create_model(self, loaded=False, image_shape=46, model_path='', weights_path=''):
+        model_class = MODELS[self.model_code]
+        if loaded:
+            self.model = model_class(input_shape=(image_shape, image_shape, 1))
+            self.model.load_model(model_path)
+            self.model.compile()
+            self.model.load_weights(weights_path)
+            self.model.init_callbacks()
+            self.model_created = True
+        else:
+            self.model = model_class(input_shape=(image_shape, image_shape, 1))
+            self.model.create_model()
+            self.model.compile()
+            self.model.init_callbacks()
+            self.model_created = True
 
 
 def print_menu():

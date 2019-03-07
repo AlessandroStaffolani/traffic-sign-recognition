@@ -74,26 +74,28 @@ class Model:
         self.callbacks = list()
 
     def create_model(self):
-        self.model = Sequential()
+        model = Sequential()
 
-        self.model.add(
+        model.add(
             Conv2D(filters=230, kernel_size=self.kernel_size, activation=self.layers_activation,
                    strides=(1, 1), padding='same', input_shape=self.input_shape))
 
-        self.model.add(MaxPool2D(pool_size=(2, 2), strides=2))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=2))
 
-        self.model.add(Dropout(0.2))
+        model.add(Dropout(0.2))
 
-        self.model.add(
+        model.add(
             Conv2D(filters=460, kernel_size=self.kernel_size, activation=self.layers_activation, strides=(1, 1),
                    padding='valid'))
 
-        self.model.add(MaxPool2D(pool_size=(2, 2), strides=2))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=2))
 
-        self.model.add(Flatten())
+        model.add(Flatten())
 
         # Add the output layer
-        self.model.add(Dense(self.num_output, activation=self.output_activation))
+        model.add(Dense(self.num_output, activation=self.output_activation))
+        self.model = model
+        return self.model
 
     def compile(self, optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy']):
         self.model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
@@ -104,8 +106,8 @@ class Model:
         else:
             callbacks = self.callbacks
             now = strftime("%d-%m-%Y_%H-%M", gmtime())
-            log_file = 'log/tensorboard-logs-' + str(now)
-            callbacks.append(TensorBoard(log_dir=log_file, write_grads=1,
+            log_file = 'log/tensorboard-' + self.name_to_file() + '-logs-' + str(now)
+            callbacks.append(TensorBoard(log_dir=log_file, write_grads=True,
                                          batch_size=batch_size, write_images=True))
         if self.auto_save:
             self.auto_save_model()
@@ -122,8 +124,8 @@ class Model:
         else:
             callbacks = self.callbacks
             now = strftime("%d-%m-%Y_%H-%M", gmtime())
-            log_file = 'log/tensorboard-logs-' + str(now)
-            callbacks.append(TensorBoard(log_dir=log_file, write_grads=1,
+            log_file = 'log/tensorboard-' + self.name_to_file() + '-logs-' + str(now)
+            callbacks.append(TensorBoard(log_dir=log_file, write_grads=True,
                                          batch_size=steps_per_epoch, write_images=True))
 
         if self.auto_save:
@@ -155,14 +157,13 @@ class Model:
                                             verbose)
 
     def auto_save_model(self):
-        model_name = self.name.replace(' ', '_').lower()
-        model_name = model_name + '.json'
+        model_name = self.name_to_file() + '.json'
         path = 'model/' + model_name
         print('Saving model to: ' + path)
         self.save_model(path)
 
     def auto_save_weights(self, epochs):
-        weights_name = self.name.replace(' ', '_').lower() + '_' + str(epochs) + '-epochs'
+        weights_name = self.name_to_file() + '_' + str(epochs) + '-epochs'
         now = strftime("%d-%m-%Y_%H-%M", gmtime())
         weights_name = weights_name + '_' + now + '.h5'
         path = 'model/weights/' + weights_name
@@ -205,6 +206,9 @@ class Model:
                     callback = None
                 if callback is not None:
                     self.callbacks.append(callback(**callback_table[type]['args']))
+
+    def name_to_file(self):
+        return self.name.replace(' ', '_').lower()
 
 
 def get_value_if_list_or_int(value, index):
