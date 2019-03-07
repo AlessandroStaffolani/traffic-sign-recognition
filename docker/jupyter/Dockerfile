@@ -5,10 +5,6 @@ WORKDIR /usr/src/jupyter
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN useradd -ms /bin/bash jupyter
+CMD ["jupyter", "notebook", "--no-browser", "--ip=0.0.0.0", "--notebook-dir=/jupyter", "--allow-root"]
 
-USER jupyter
-
-CMD ["jupyter", "trust", "${JUPYTER_FILE_PATH}", "&&", "jupyter", "notebook", "--no-browser", "--ip=0.0.0.0", "--notebook-dir=/jupyter"]
-
-# docker run -d -v $(pwd)/:/jupyter -p 8888:8888 -e JUPYTER_FILE_PATH="/jupyter/iteractive_analysis.ipynb" --name jupyter jupyter
+# docker run -d -v $(pwd)/:/jupyter -p 8888:8888 --name jupyter jupyter
