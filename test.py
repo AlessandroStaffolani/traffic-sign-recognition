@@ -10,12 +10,11 @@ from keras.utils import to_categorical
 from zipfile import ZipFile
 
 from src.models.Model import Model
-from src.utility.preprocessor_utility import preprocess_image
 from src.utility.dataset_utility import create_traing_data_table
 from src.DataGenerator import DataGenerator
-from src.utility.dataset_utility import split_train_data
+from src.utility.dataset_utility import split_train_data, save_images_roi
 from src.utility.image_utility import load_image, resize_image, img_to_grayscale, show_image, equalize_image_lightness, \
-    equalize_colored_image, get_roi_image
+    equalize_colored_image
 from src.utility.system_utility import progress_bar
 from src.preprocessors.HistogramEqualizer import HistogramEqualizer
 from src.preprocessors.Normalizer import Normalizer
@@ -69,22 +68,26 @@ def main(argv):
 
     # image = np.array(image)[:, :, np.newaxis]
 
-    print(image.shape)
-    print(image)
+    datatable = pd.read_csv('data/training/training_table.csv', sep=',', nrows=210)
 
-    pipeline = Pipeline(verbose=True)
-    pipeline.add_preprocessors((
-        HistogramEqualizer(),
-        Normalizer()
-    ))
+    save_images_roi(datatable['image_path'].values, datatable['label'].values, 'data/prova', datatable)
 
-    out = pipeline.evaluate(image)
-
-    print(out.shape)
-    print(out)
-
-    show_image(image, 'No elaboration')
-    show_image(out, 'Elaborated')
+    # print(image.shape)
+    # print(image)
+    #
+    # pipeline = Pipeline(verbose=True)
+    # pipeline.add_preprocessors((
+    #     HistogramEqualizer(),
+    #     Normalizer()
+    # ))
+    #
+    # out = pipeline.evaluate(image)
+    #
+    # print(out.shape)
+    # print(out)
+    #
+    # show_image(image, 'No elaboration')
+    # show_image(out, 'Elaborated')
 
     # image_path = 'data/train/00000/00000_00001.ppm'
     # image = load_image(image_path)
