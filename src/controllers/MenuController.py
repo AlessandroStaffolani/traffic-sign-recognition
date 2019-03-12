@@ -223,7 +223,7 @@ class MenuController:
     def train_all_images(self):
         if self.mode == 0:
             # Intercative mode
-            model_code = ask_param_with_default('Model to be used from these: ' + str(MODELS), self.model_code)
+            model_code = str(ask_param_with_default('Model to be used from these: ' + str(MODELS), self.model_code))
             train_dir = ask_param_with_default('Training images data dir', 'data/train')
             n_train_samples = int(ask_param_with_default('Number of training samples ', self.n_train_samples))
             validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
@@ -267,10 +267,10 @@ class MenuController:
             use_multiprocessing = False
 
         history = self.model.fit_generator(
-            train_generator.get_generator(),
+            train_generator.get_generator(color_mode='rgb'),
             steps_per_epoch=n_train_samples // batch_size,
             epochs=epochs,
-            validation_data=validation_generator.get_generator(),
+            validation_data=validation_generator.get_generator(color_mode='rgb'),
             validation_steps=n_valid_samples // batch_size,
             workers=workers,
             use_multiprocessing=use_multiprocessing
