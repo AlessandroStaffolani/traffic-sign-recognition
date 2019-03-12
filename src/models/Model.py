@@ -76,19 +76,20 @@ class Model:
     def create_model(self):
         model = Sequential()
 
-        model.add(
-            Conv2D(filters=32, kernel_size=self.kernel_size, activation=self.layers_activation,
-                   strides=(1, 1), padding='same', input_shape=self.input_shape))
-
+        model.add(Conv2D(filters=32, kernel_size=self.kernel_size, activation=self.layers_activation,
+                         strides=(1, 1), padding='same', input_shape=self.input_shape))
         model.add(MaxPool2D(pool_size=(2, 2), strides=2))
-
         model.add(Dropout(0.2))
 
-        model.add(
-            Conv2D(filters=64, kernel_size=self.kernel_size, activation=self.layers_activation, strides=(1, 1),
-                   padding='valid'))
-
+        model.add(Conv2D(filters=64, kernel_size=self.kernel_size, activation=self.layers_activation, strides=(1, 1),
+                         padding='valid'))
         model.add(MaxPool2D(pool_size=(2, 2), strides=2))
+        model.add(Dropout(0.2))
+
+        model.add(Conv2D(filters=128, kernel_size=self.kernel_size, activation=self.layers_activation, strides=(1, 1),
+                         padding='valid'))
+        model.add(MaxPool2D(pool_size=(2, 2), strides=2))
+        model.add(Dropout(0.2))
 
         model.add(Flatten())
 
