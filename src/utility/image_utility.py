@@ -35,6 +35,29 @@ def equalize_img(image):
     return cv.equalizeHist(image)
 
 
+def equalize_image_lightness(image):
+    H, S, V = cv.split(cv.cvtColor(image, cv.COLOR_RGB2HSV))
+    eq_V = cv.equalizeHist(V)
+    eq_image = cv.cvtColor(cv.merge([H, S, eq_V]), cv.COLOR_HSV2RGB)
+    return eq_image
+
+
+def equalize_colored_image(image):
+    channels = cv.split(image)
+    eq_channels = []
+    for ch in channels:
+        eq_channels.append(cv.equalizeHist(ch))
+
+    eq_image = cv.merge(eq_channels)
+    return eq_image
+
+
+def get_roi_image(image):
+    roi = cv.selectROI(image, fromCenter=True)
+    roi_image = image[roi[1]:roi[1]+roi[3], roi[0]:roi[0]+roi[2]]
+    return roi_image
+
+
 def normalize_img(image, alpha=0, beta=1):
     if alpha == 0 and beta == 1:
         return cv.normalize(image, None, alpha=alpha, beta=beta, norm_type=cv.NORM_MINMAX, dtype=cv.CV_32F)

@@ -38,6 +38,7 @@ def help_message():
     print('-a or --action [actions]\t\tset the action or the list of action to execute '
           '(format: <action_1>,<action_2>,<action_3>,...)')
     print('--model-code [code]\t\t\tset the model to be used, one of the possible listed below (default: 0)')
+    print('--color-mode [value]\t\t\tset the color mode used, possible values: grayscale, rgb (default: grayscale)')
     print('--batch-size [size]\t\t\tsize of the batch (default: 400)')
     print('--epochs [number]\t\t\tnumber of epochs for training (default: 10)')
     print('--image-shape [shape]\t\t\tfinal size of all images after preprocessing '
@@ -68,6 +69,7 @@ def handle_arguments(args):
     mode = 0  # mode of execution 0 = interactive | 1 = script mode
     actions = None  # action or list of actions to execute in script mode
     model_code = 0
+    color_mode = 'grayscale'
     batch_size = 400
     epochs = 10
     image_shape = 46
@@ -90,7 +92,9 @@ def handle_arguments(args):
         elif arg == '-a' or arg == '--action':
             actions = arg_val.split(',')
         elif arg == '--model-code':
-            model_code = arg_val
+            model_code = str(arg_val)
+        elif arg == '--color-mode':
+            color_mode = str(arg_val)
         elif arg == '--batch-size':
             batch_size = int(arg_val)
         elif arg == '--epochs':
@@ -118,13 +122,13 @@ def handle_arguments(args):
     if len(args) == 1:
         need_helps = True
 
-    return need_helps, random_seed, mode, actions, model_code, batch_size, epochs, image_shape, \
+    return need_helps, random_seed, mode, actions, model_code, color_mode, batch_size, epochs, image_shape, \
            n_workers, model_file, weights_file, split_factor, n_train_samples, n_validation_samples
 
 
 def main(argv):
     need_helps, random_seed, mode, \
-    actions, model_code, batch_size, epochs, \
+    actions, model_code, color_code, batch_size, epochs, \
     image_shape, n_workers, model_file, weigths_file, \
     split_factor, n_train_samples, n_validation_samples = handle_arguments(argv[1:])
 
@@ -144,8 +148,8 @@ def main(argv):
 
     menu = MenuController(mode=mode, actions=actions, model=model_code, batch_size=batch_size, epochs=epochs,
                           image_shape=image_shape, num_workers=n_workers, model_path=model_file,
-                          weights_path=weigths_file, split_factor=split_factor, n_train_samples=n_train_samples,
-                          n_validation_samples=n_validation_samples)
+                          weights_path=weigths_file, color_mode=color_code, split_factor=split_factor,
+                          n_train_samples=n_train_samples, n_validation_samples=n_validation_samples)
 
     # df = pd.read_csv('data/training/training_table.csv')
     # print(df.info())

@@ -11,5 +11,9 @@ class Normalizer(Preprocessor):
         self.beta = beta
 
     def evaluate(self, value):
-        normalized = normalize_img(value, self.alpha, self.beta)
-        return np.array(normalized)[:, :, np.newaxis]
+        if value.shape[2] == 1:
+            normalized = normalize_img(value, self.alpha, self.beta)
+            return np.array(normalized)[:, :, np.newaxis]
+        else:
+            normalized = normalize_img(value, self.alpha, self.beta)
+            return normalized

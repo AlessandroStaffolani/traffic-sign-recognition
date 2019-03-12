@@ -9,4 +9,4 @@ COPY . .
 
 CMD ["python", "-u", "./main.py"]
 
-# docker run -v $(pwd)/data:/usr/src/app/data -v $(pwd)/log:/usr/src/app/log -v $(pwd)/model:/usr/src/app/model --name cnn-app traffic-sign-recognition python main.py <args>
+# docker run -d -v $(pwd)/data:/usr/src/app/data -v $(pwd)/log:/usr/src/app/log -v $(pwd)/model:/usr/src/app/model --name cnn-app traffic-sign-recognition python main.py <args>

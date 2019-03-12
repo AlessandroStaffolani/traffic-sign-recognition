@@ -145,3 +145,5 @@ venv.bak/
 /model/
 /test_keras.py
 /tmp/
+/log-remote/
+/model-remote/
