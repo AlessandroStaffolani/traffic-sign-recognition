@@ -12,6 +12,7 @@ from src.preprocessors.Normalizer import Normalizer
 from src.DataGenerator import DataGenerator
 from src.models.Model import Model
 from src.models.SGDModel import SGDModel
+from src.models.Xception import Xception
 from src.Pipeline import Pipeline
 
 ACTIONS = {
@@ -28,7 +29,8 @@ ACTIONS = {
 
 MODELS = {
     '0': Model,  # simple model
-    '1': SGDModel  # more complex model using SGD optimizer
+    '1': SGDModel,  # more complex model using SGD optimizer
+    '2': Xception,  # model coming from keras application models
 }
 
 
@@ -37,7 +39,7 @@ class MenuController:
     def __init__(self, mode=0, actions=None, model='0', labels_count=43, batch_size=400, epochs=10,
                  image_shape=46, num_workers=1, model_path='model/simple_model.json',
                  weights_path='model/weights/weights.h5', color_mode='grayscale',
-                 split_factor=0.25, n_train_samples=29406, n_validation_samples=9803, log_folder='log/'):
+                 split_factor=0.2, n_train_samples=31367, n_validation_samples=7842, log_folder='log/'):
         self.labels = get_labels(labels_count)
         self.mode = mode
         self.actions = actions
@@ -252,6 +254,7 @@ class MenuController:
             workers = self.num_workers
 
         self.model_code = model_code
+        self.color_mode = color_mode
 
         start = time()
 
