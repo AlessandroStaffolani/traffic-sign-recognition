@@ -7,6 +7,10 @@ def load_image(image_name, cmap=1):
     return cv.imread(image_name, cmap)
 
 
+def save_image(image_path, image):
+    cv.imwrite(image_path, image)
+
+
 def resize_image(image, size):
     return cv.resize(image, size)
 
@@ -52,10 +56,9 @@ def equalize_colored_image(image):
     return eq_image
 
 
-def get_roi_image(image):
-    roi = cv.selectROI(image, fromCenter=True)
-    roi_image = image[roi[1]:roi[1]+roi[3], roi[0]:roi[0]+roi[2]]
-    return roi_image
+def crop_roi(image, roi):
+    cropped = image[roi[0]: roi[2], roi[1]: roi[3], :]
+    return cropped
 
 
 def normalize_img(image, alpha=0, beta=1):

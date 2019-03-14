@@ -47,9 +47,9 @@ def help_message():
     print('--model-file [file_path]\t\tpath to the model json file that you want load (default: model/model.json)')
     print('--weights-file [file_path]\t\tpath to the weights h5 file that you want load '
           '(default: model/weights/weights.h5)')
-    print('--split-factor [float_number]\t\tpercentage of training data to use as validation data (default: 0.25)')
-    print('--n-train-samples [number]\t\tnumber of image in train dataset (defualt: 29406)')
-    print('--n-validation-samples [number]\t\tnumber of image in validation dataset (defualt: 9803)', end='\n\n')
+    print('--split-factor [float_number]\t\tpercentage of training data to use as validation data (default: 0.2)')
+    print('--n-train-samples [number]\t\tnumber of image in train dataset (defualt: 31367)')
+    print('--n-validation-samples [number]\t\tnumber of image in validation dataset (defualt: 7842)', end='\n\n')
     print('Possible actions:')
     print('0) Download training and testing datasets')
     print('1) Prepare training datatable')
@@ -76,9 +76,9 @@ def handle_arguments(args):
     n_workers = 1
     model_file = 'model/model.json'
     weights_file = 'model/weights/weights.h5'
-    split_factor = 0.25
-    n_train_samples = 29406
-    n_validation_samples = 9803
+    split_factor = 0.2
+    n_train_samples = 31367
+    n_validation_samples = 7842
     i = 0
     while i < (len(args) - 1):
         arg = args[i]
