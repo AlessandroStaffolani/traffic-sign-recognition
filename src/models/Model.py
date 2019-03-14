@@ -3,8 +3,9 @@ from time import gmtime, strftime
 
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
+from keras.optimizers import SGD
 from keras.models import model_from_json
-from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard, CSVLogger
+from keras.callbacks import ModelCheckpoint, EarlyStopping, TensorBoard, CSVLogger, LearningRateScheduler
 
 from src.models.callbacks.LogCallback import LogCallback
 
@@ -62,7 +63,7 @@ callback_table = {
 class Model:
 
     def __init__(self, name='Simple Model', auto_save=True, layer_activation='relu', num_output=43,
-                 output_activation='softmax', kernel_size=3, input_shape=(46, 46)):
+                 output_activation='softmax', kernel_size=3, input_shape=(46, 46), lr=0.01):
         self.model = None
         self.name = name
         self.auto_save = auto_save
@@ -71,7 +72,11 @@ class Model:
         self.output_activation = output_activation
         self.kernel_size = kernel_size
         self.input_shape = input_shape
+        self.lr = lr
         self.callbacks = list()
+
+    def __str__(self):
+        return self.name
 
     def create_model(self):
         model = Sequential()
@@ -98,18 +103,27 @@ class Model:
         self.model = model
         return self.model
 
-    def compile(self, optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy']):
-        self.model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
+    def compile(self, optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'], decay=1e-6, momentum=0.9, nesterov=True):
+        sgd = SGD(lr=self.lr, decay=decay, momentum=momentum, nesterov=nesterov)
+        self.model.compile(loss=loss, optimizer=sgd, metrics=metrics)
 
     def fit(self, train_data, train_labels, validation_split=0.25, epochs=10, batch_size=100):
         if len(self.callbacks) == 0:
             callbacks = None
         else:
+            lr = self.lr
+
+            def lr_schedule(epoch):
+                return lr * (0.1 ** int(epoch / 10))
+
             callbacks = self.callbacks
             now = strftime("%d-%m-%Y_%H-%M", gmtime())
             log_file = 'log/tensorboard-' + self.name_to_file() + '-logs-' + str(now)
             callbacks.append(TensorBoard(log_dir=log_file, write_grads=True,
                                          batch_size=batch_size, write_images=True))
+
+            callbacks.append(LearningRateScheduler(lr_schedule))
+
         if self.auto_save:
             self.auto_save_model()
         history = self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs,
@@ -123,11 +137,18 @@ class Model:
         if len(self.callbacks) == 0:
             callbacks = None
         else:
+            lr = self.lr
+
+            def lr_schedule(epoch):
+                return lr * (0.1 ** int(epoch / 10))
+
             callbacks = self.callbacks
             now = strftime("%d-%m-%Y_%H-%M", gmtime())
             log_file = 'log/tensorboard-' + self.name_to_file() + '-logs-' + str(now)
             callbacks.append(TensorBoard(log_dir=log_file, write_grads=True,
                                          batch_size=steps_per_epoch, write_images=True))
+
+            callbacks.append(LearningRateScheduler(lr_schedule))
 
         if self.auto_save:
             self.auto_save_model()

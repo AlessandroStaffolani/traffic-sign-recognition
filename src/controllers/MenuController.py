@@ -12,6 +12,7 @@ from src.preprocessors.Normalizer import Normalizer
 from src.DataGenerator import DataGenerator
 from src.models.Model import Model
 from src.models.SGDModel import SGDModel
+from src.models.Xception import Xception
 from src.Pipeline import Pipeline
 
 ACTIONS = {
@@ -28,7 +29,8 @@ ACTIONS = {
 
 MODELS = {
     '0': Model,  # simple model
-    '1': SGDModel  # more complex model using SGD optimizer
+    '1': SGDModel,  # more complex model using SGD optimizer
+    '2': Xception,  # model coming from keras application models
 }
 
 
@@ -252,6 +254,7 @@ class MenuController:
             workers = self.num_workers
 
         self.model_code = model_code
+        self.color_mode = color_mode
 
         start = time()
 
