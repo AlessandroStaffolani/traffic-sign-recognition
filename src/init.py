@@ -34,6 +34,7 @@ def init_directories(training_path='data/training', testing_path='data/testing')
     create_directory('model/checkpoints')
     create_directory('model/weights')
     create_directory('log')
+    create_directory('stats')
     create_directory(training_path)
     create_directory(testing_path)
 

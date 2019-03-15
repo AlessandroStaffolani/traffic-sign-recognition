@@ -117,9 +117,7 @@ class Model:
                 return lr * (0.1 ** int(epoch / 10))
 
             callbacks = self.callbacks
-            now = strftime("%d-%m-%Y_%H-%M", gmtime())
-            log_file = 'log/tensorboard-' + self.name_to_file() + '-logs-' + str(now)
-            callbacks.append(TensorBoard(log_dir=log_file, write_grads=True,
+            callbacks.append(TensorBoard(log_dir=self.get_tensorboard_name(), write_grads=True,
                                          batch_size=batch_size, write_images=True))
 
             callbacks.append(LearningRateScheduler(lr_schedule))
@@ -143,9 +141,7 @@ class Model:
                 return lr * (0.1 ** int(epoch / 10))
 
             callbacks = self.callbacks
-            now = strftime("%d-%m-%Y_%H-%M", gmtime())
-            log_file = 'log/tensorboard-' + self.name_to_file() + '-logs-' + str(now)
-            callbacks.append(TensorBoard(log_dir=log_file, write_grads=True,
+            callbacks.append(TensorBoard(log_dir=self.get_tensorboard_name(), write_grads=True,
                                          batch_size=steps_per_epoch, write_images=True))
 
             callbacks.append(LearningRateScheduler(lr_schedule))
@@ -231,6 +227,17 @@ class Model:
 
     def name_to_file(self):
         return self.name.replace(' ', '_').lower()
+
+    def get_tensorboard_name(self):
+        now = strftime("%d-%m-%Y_%H-%M", gmtime())
+        try:
+            if self.input_shape[2] == 3:
+                color = 'rgb'
+            else:
+                color = 'grayscale'
+        except IndexError:
+            color = 'grayscale'
+        return 'log/tensorboard-' + self.name_to_file() + '-' + color + '-logs-' + str(now)
 
 
 def get_value_if_list_or_int(value, index):
