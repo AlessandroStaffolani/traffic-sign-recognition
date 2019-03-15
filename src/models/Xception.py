@@ -54,3 +54,6 @@ class Xception(Model):
 
         Model.__init__(self, name, auto_save, layer_activation, num_output, output_activation, kernel_size, input_shape)
 
+    def create_model(self):
+        self.model = XceptionModel(include_top=True, weights=None, input_shape=self.input_shape,
+                                   pooling='max', classes=self.num_output)

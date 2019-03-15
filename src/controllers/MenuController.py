@@ -66,6 +66,9 @@ class MenuController:
         self.current_action = 0  # Action selected by user on the menu
         self.close_action = 9
 
+        self.history = None
+        self.scores = None
+
         self._init()
 
     def _init(self):
@@ -90,16 +93,16 @@ class MenuController:
             print('\nSCRIPT MODE:', end='\n\n')
             print('Actions to execute: ' + str(self.actions))
             print('Configuration:')
-            print('\tmodel-code:\t\t' + str(self.model_code))
-            print('\tcolor-mode:\t\t' + str(self.color_mode))
-            print('\tbatch-size:\t\t' + str(self.batch_size))
-            print('\tepochs:\t\t\t' + str(self.epochs))
-            print('\timage-shape:\t\t' + str(self.image_shape))
-            print('\tnum-workers:\t\t' + str(self.num_workers))
-            print('\tmodel-file:\t\t' + self.model_path)
-            print('\tweights-file:\t\t' + self.weights_path)
-            print('\tsplit-factor:\t\t' + str(self.split_factor))
-            print('\tn-train-samples:\t' + str(self.n_train_samples))
+            print('\tmodel-code:\t\t\t\t' + str(self.model_code))
+            print('\tcolor-mode:\t\t\t\t' + str(self.color_mode))
+            print('\tbatch-size:\t\t\t\t' + str(self.batch_size))
+            print('\tepochs:\t\t\t\t\t' + str(self.epochs))
+            print('\timage-shape:\t\t\t' + str(self.image_shape))
+            print('\tnum-workers:\t\t\t' + str(self.num_workers))
+            print('\tmodel-file:\t\t\t\t' + self.model_path)
+            print('\tweights-file:\t\t\t' + self.weights_path)
+            print('\tsplit-factor:\t\t\t' + str(self.split_factor))
+            print('\tn-train-samples:\t\t' + str(self.n_train_samples))
             print('\tn-validation-samples:\t' + str(self.n_validation_samples), end='\n\n')
 
             self.execute_actions()
@@ -288,6 +291,8 @@ class MenuController:
             use_multiprocessing=use_multiprocessing
         )
 
+        self.history = history
+
         end = time()
         print('Processing time: ' + str(round(end - start, 2)) + ' seconds', end='\n\n')
 
@@ -330,7 +335,8 @@ class MenuController:
         if self.model_created is False:
             print('\nModel not initialized, please load a model')
         else:
-            scores = self.model.evaluate_generator(test_generator.get_generator(), n_test_samples // batch_size)
+            scores = self.model.evaluate_generator(test_generator.get_generator(color_mode=self.color_mode), n_test_samples // batch_size)
+            self.scores = scores
             print()
             print('Loss: ' + str(scores[0]))
             print('Accuracy: ' + str(scores[1]))
