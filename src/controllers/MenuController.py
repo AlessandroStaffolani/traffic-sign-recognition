@@ -16,30 +16,31 @@ from src.models.Xception import Xception
 from src.Pipeline import Pipeline
 
 ACTIONS = {
-    '0': 'inti_project',
-    '1': 'prepare_datatable',
-    '2': 'split_training_data',
-    '3': 'prepare_test_data',
-    '4': 'train_all_images',
-    '5': 'load_model',
-    '6': 'evaluate_images',
-    '8': 'clean_log_folder',
-    '9': 'close'
+    0: 'inti_project',
+    1: 'prepare_datatable',
+    2: 'split_training_data',
+    3: 'prepare_test_data',
+    4: 'train_all_images',
+    5: 'load_model',
+    6: 'evaluate_images',
+    8: 'clean_log_folder',
+    9: 'close'
 }
 
 MODELS = {
-    '0': Model,  # simple model
-    '1': SGDModel,  # more complex model using SGD optimizer
-    '2': Xception,  # model coming from keras application models
+    0: Model,  # simple model
+    1: SGDModel,  # more complex model using SGD optimizer
+    2: Xception,  # model coming from keras application models
 }
 
 
 class MenuController:
 
-    def __init__(self, mode=0, actions=None, model='0', labels_count=43, batch_size=400, epochs=10,
+    def __init__(self, mode=0, actions=None, model=0, labels_count=43, batch_size=400, epochs=10,
                  image_shape=46, num_workers=1, model_path='model/simple_model.json',
                  weights_path='model/weights/weights.h5', color_mode='grayscale',
-                 split_factor=0.2, n_train_samples=31367, n_validation_samples=7842, log_folder='log/'):
+                 split_factor=0.2, n_train_samples=31367, n_validation_samples=7842, log_folder='log/',
+                 train_dir='data/train', validation_dir='data/validation', test_dir='data/test'):
         self.labels = get_labels(labels_count)
         self.mode = mode
         self.actions = actions
@@ -55,6 +56,9 @@ class MenuController:
         self.n_train_samples = n_train_samples
         self.n_validation_samples = n_validation_samples
         self.log_folder = log_folder
+        self.train_dir = train_dir
+        self.validation_dir = validation_dir
+        self.test_dir = test_dir
         self.model = None
         self.model_created = False
         self.pipeline = Pipeline()
@@ -187,14 +191,14 @@ class MenuController:
             # Intercative mode
             data_table_path = ask_param_with_default('Training images data table file',
                                                      'data/training/training_table.csv')
-            train_out_path = ask_param_with_default('Train data output path', 'data/train')
-            validation_out_path = ask_param_with_default('Validation data output path', 'data/validation')
+            train_out_path = ask_param_with_default('Train data output path', self.train_dir)
+            validation_out_path = ask_param_with_default('Validation data output path', self.validation_dir)
             validation_size = ask_param_with_default('Validation set proportion', self.split_factor)
         else:
             # Script mode
             data_table_path = 'data/training/training_table.csv'
-            train_out_path = 'data/train'
-            validation_out_path = 'data/validation'
+            train_out_path = self.train_dir
+            validation_out_path = self.validation_dir
             validation_size = self.split_factor
 
         print()
@@ -207,14 +211,14 @@ class MenuController:
         if self.mode == 0:
             # Intercative mode
             data_folder = ask_param_with_default('Folder of test images', 'data/testing/images')
-            output_folder = ask_param_with_default('Test folder output', 'data/test')
+            output_folder = ask_param_with_default('Test folder output', self.test_dir)
             data_frame_path = ask_param_with_default('Test data csv path', 'data/testing/testing_table.csv')
             separator = ask_param_with_default('Separator for the data csv file', ';')
             label_col = ask_param_with_default('Name of the label column', 'ClassId')
         else:
             # Script mode
             data_folder = 'data/testing/images'
-            output_folder = 'data/test'
+            output_folder = self.test_dir
             data_frame_path = 'data/testing/testing_table.csv'
             separator = ';'
             label_col = 'ClassId'
@@ -230,9 +234,9 @@ class MenuController:
             # Intercative mode
             model_code = str(ask_param_with_default('Model to be used from these: ' + str(MODELS), self.model_code))
             color_mode = str(ask_param_with_default('Use grayscale or RGB images? possible values: grayscale, rgb', self.color_mode))
-            train_dir = ask_param_with_default('Training images data dir', 'data/train')
+            train_dir = ask_param_with_default('Training images data dir', self.train_dir)
             n_train_samples = int(ask_param_with_default('Number of training samples ', self.n_train_samples))
-            validation_dir = ask_param_with_default('Validation images data dir', 'data/validation')
+            validation_dir = ask_param_with_default('Validation images data dir', self.validation_dir)
             n_valid_samples = int(ask_param_with_default('Number of validation samples ', self.n_validation_samples))
             batch_size = int(ask_param_with_default('Batch size to use for training', self.batch_size))
             epochs = int(ask_param_with_default('Number of epochs for training', self.epochs))
@@ -244,9 +248,9 @@ class MenuController:
             # Script mode
             model_code = self.model_code
             color_mode = self.color_mode
-            train_dir = 'data/train'
+            train_dir = self.train_dir
             n_train_samples = self.n_train_samples
-            validation_dir = 'data/validation'
+            validation_dir = self.validation_dir
             n_valid_samples = self.n_validation_samples
             batch_size = self.batch_size
             epochs = self.epochs
@@ -310,14 +314,14 @@ class MenuController:
     def evaluate_images(self):
         if self.mode == 0:
             # Intercative mode
-            eval_data_folder = ask_param_with_default('Path of the test data', 'data/test')
+            eval_data_folder = ask_param_with_default('Path of the test data', self.test_dir)
             n_test_samples = int(ask_param_with_default('Number of test samples', 12630))
             batch_size = int(ask_param_with_default('Batch size to use for testing', self.batch_size))
             image_shape = int(ask_param_with_default(
                 'Dimension of all images, must be the same vertically and horizontally', self.image_shape))
         else:
             # Script mode
-            eval_data_folder = 'data/test'
+            eval_data_folder = self.test_dir
             n_test_samples = 12630
             batch_size = self.batch_size
             image_shape = self.image_shape
@@ -346,10 +350,10 @@ class MenuController:
 
     def execute_actions(self):
         if self.mode == 1:
-            for action_name in self.actions:
-                print('Executing action: ' + ACTIONS[str(action_name)])
+            for action_code in self.actions:
+                print('Executing action: ' + ACTIONS[action_code])
                 try:
-                    action = getattr(self, ACTIONS[str(action_name)])
+                    action = getattr(self, ACTIONS[action_code])
                     action()
                 except AttributeError:
                     print('Action not exist')
@@ -358,7 +362,7 @@ class MenuController:
             print("Current version 0 -> Interactive, use the menu")
 
     def create_model(self, loaded=False, image_shape=46, model_path='', weights_path=''):
-        model_class = MODELS[str(self.model_code)]
+        model_class = MODELS[self.model_code]
         if self.color_mode == 'rgb':
             shape = (image_shape, image_shape, 3)
         else:
