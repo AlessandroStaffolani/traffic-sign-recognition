@@ -1,31 +1,4 @@
-import sys
-import cv2
-import numpy as np
-import pandas as pd
-import keras
 import argparse
-
-from src.init import init_directories
-
-
-def welcome_msg(random_seed):
-    print("****************************************")
-    print("******* TRAFFIC SIGN RECOGNITION *******")
-    print("****************************************", end='\n\n\n')
-    print("Welcome! The aim of this project is to use a Convolutional Neural Network (CNN) to classify the famous "
-          "german traffic sign benchmark data set")
-    print("_______________________________________", end='\n\n')
-    print("PROJECT GOALS:")
-    print("1) Classify the dataset using CNN (images contains only the ROI)")
-    print("2) Find traffic signs from a real scene and than send sign image to the first point (OPTIONAL) ")
-    print("_______________________________________", end='\n\n')
-    print("Project main library version:")
-    print("OpenCV: " + str(cv2.__version__))
-    print("Numpy: " + str(np.__version__))
-    print("Pandas: " + str(pd.__version__))
-    print("Keras: " + str(keras.__version__), end='\n\n')
-    print("To allow replication of the result will be used a specific random seed = " + str(random_seed))
-    print("Random seed can be changed for more information run -h or --help command ")
 
 
 def get_arguments():
@@ -53,7 +26,7 @@ def get_arguments():
             2) Xception Model
     ''')
     parser.add_argument_group()
-    parser.add_argument('-a', '--actions', help='set the action or the list of action to execute, check the list below',
+    parser.add_argument('-a', '--action', help='set the action or the list of action to execute, check the list below',
                         type=str, nargs='*',
                         choices=['0', '1', '2', '3', '4', '5', '6'])
     parser.add_argument('--color-mode', help='set the color mode used (default: grayscale)', default='grayscale',
@@ -87,7 +60,7 @@ def get_arguments():
 
     args = parser.parse_args()
 
-    if args.mode == 1 and args.actions is None:
+    if args.mode == 1 and args.action is None:
         parser.error('--action is required when mode = 1')
 
     return args
@@ -95,24 +68,6 @@ def get_arguments():
 
 def main(args):
     print(args)
-    try:
-        from src.controllers.MenuController import MenuController
-    except FileNotFoundError:
-        init_directories()
-        from src.controllers.MenuController import MenuController
-
-    np.random.seed(args.random_seed)
-
-    welcome_msg(args.random_seed)
-
-    menu = MenuController(mode=args.mode, actions=args.actions, model=args.model_code, batch_size=args.size_batch,
-                          epochs=args.epochs,
-                          image_shape=args.image_shape, num_workers=args.n_workers, model_path=args.model_file,
-                          weights_path=args.weights_file, color_mode=args.color_mode, split_factor=args.split_factor,
-                          n_train_samples=args.n_train_samples, n_validation_samples=args.n_validation_samples)
-
-    # df = pd.read_csv('data/training/training_table.csv')
-    # print(df.info())
 
 
 if __name__ == '__main__':
