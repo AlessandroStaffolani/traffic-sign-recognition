@@ -1,20 +1,20 @@
 {
   "global": {
-    "actions": [4, 6],
+    "batch_size": 32,
     "epochs": 30,
     "image_shape": 72,
     "labels_count": 43,
-    "model_path": "model/simple_model.jso",
     "n_train_samples": 31367,
     "n_validation_samples": 7842,
-    "n_workers": 1,
-    "random_seed": 42,
-    "size_batch": 32,
-    "split_factor": 0.2,
-    "weights_path": "model/weights/weights.h5"
+    "num_workers": 1,
+    "split_factor": 0.2
   },
   "instances": [
     {
+      "actions": [0, 1, 2, 3]
+    },
+    {
+      "actions": [4, 6],
       "color_mode": "grayscale",
       "models": [0, 1, 2],
       "test_dir": "data/test",
@@ -22,6 +22,7 @@
       "validation_dir": "data/validation"
     },
     {
+      "actions": [4, 6],
       "color_mode": "rgb",
       "models": [0, 1, 2],
       "test_dir": "data/test",
@@ -29,6 +30,7 @@
       "validation_dir": "data/validation"
     },
     {
+      "actions": [4, 6],
       "color_mode": "grayscale",
       "models": [0, 1, 2],
       "test_dir": "data/test_roi",
@@ -36,6 +38,7 @@
       "validation_dir": "data/validation_roi"
     },
     {
+      "actions": [4, 6],
       "color_mode": "rgb",
       "models": [0, 1, 2],
       "test_dir": "data/test_roi",

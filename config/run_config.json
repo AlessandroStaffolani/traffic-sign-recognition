@@ -1,0 +1,41 @@
+{
+  "global": {
+    "actions": [4, 6],
+    "batch_size": 32,
+    "epochs": 30,
+    "image_shape": 72,
+    "n_train_samples": 31367,
+    "n_validation_samples": 7842,
+    "num_workers": 1
+  },
+  "instances": [
+    {
+      "color_mode": "grayscale",
+      "models": [0, 1, 2],
+      "test_dir": "data/test",
+      "train_dir": "data/train",
+      "validation_dir": "data/validation"
+    },
+    {
+      "color_mode": "rgb",
+      "models": [0, 1, 2],
+      "test_dir": "data/test",
+      "train_dir": "data/train",
+      "validation_dir": "data/validation"
+    },
+    {
+      "color_mode": "grayscale",
+      "models": [0, 1, 2],
+      "test_dir": "data/test_roi",
+      "train_dir": "data/train_roi",
+      "validation_dir": "data/validation_roi"
+    },
+    {
+      "color_mode": "rgb",
+      "models": [0, 1, 2],
+      "test_dir": "data/test_roi",
+      "train_dir": "data/train_roi",
+      "validation_dir": "data/validation_roi"
+    }
+  ]
+}
