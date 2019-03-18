@@ -63,6 +63,7 @@ def get_arguments():
     parser.add_argument('-a', '--actions', help='set the action or the list of action to execute, check the list below',
                         type=int, nargs='*',
                         choices=[0, 1, 2, 3, 4, 5, 6])
+    parser.add_argument('--batch-size', help='size of the batch (default: 32)', default=32, type=int)
     parser.add_argument('--color-mode', help='set the color mode used (default: grayscale)', default='grayscale',
                         type=str, choices=['grayscale', 'rgb'])
     parser.add_argument('-e', '--epochs', help='number of epochs for training (default: 30)', default=30, type=int)
@@ -87,7 +88,6 @@ def get_arguments():
     parser.add_argument('-r', '--random-seed', help='set the project random seed (default: 42)', default=42, type=int)
     parser.add_argument('--run-file', help="use a json file containing the configs to run multiple instances",
                         default=None, type=str)
-    parser.add_argument('-s', '--size-batch', help='size of the batch (default: 32)', default=32, type=int)
     parser.add_argument('--split-factor', help='percentage of training data to use as validation data (default: 0.2)',
                         default=0.2, type=float)
     parser.add_argument('--test-dir', help='Location of test images (default: data/test)', default='data/test',

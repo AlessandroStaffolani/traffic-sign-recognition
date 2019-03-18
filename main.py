@@ -20,7 +20,7 @@ def main(args):
 
     if args.run_file is None:
         # single execution in interactive or script mode
-        menu = MenuController(mode=args.mode, actions=args.actions, model=args.model_code, batch_size=args.size_batch,
+        menu = MenuController(mode=args.mode, actions=args.actions, model=args.model_code, batch_size=args.batch_size,
                               epochs=args.epochs,
                               image_shape=args.image_shape, num_workers=args.n_workers, model_path=args.model_file,
                               weights_path=args.weights_file, color_mode=args.color_mode, split_factor=args.split_factor,

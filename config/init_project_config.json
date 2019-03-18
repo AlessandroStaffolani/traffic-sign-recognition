@@ -1,0 +1,14 @@
+{
+  "global": {
+    "labels_count": 43,
+    "n_train_samples": 31367,
+    "n_validation_samples": 7842,
+    "num_workers": 1,
+    "split_factor": 0.2
+  },
+  "instances": [
+    {
+      "actions": [0, 1, 2, 3]
+    }
+  ]
+}

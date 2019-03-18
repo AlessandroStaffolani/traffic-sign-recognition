@@ -1,0 +1,22 @@
+{
+  "global": {
+    "actions": [4, 6],
+    "batch_size": 32,
+    "color_mode": "grayscale",
+    "epochs": 30,
+    "image_shape": 72,
+    "labels_count": 43,
+    "log_folder": "log/",
+    "mode": 1,
+    "model": 0,
+    "model_path": "model/simple_model.jso",
+    "n_train_samples": 31367,
+    "n_validation_samples": 7842,
+    "num_workers": 1,
+    "split_factor": 0.2,
+    "test_dir": "data/test",
+    "train_dir": "data/train",
+    "validation_dir": "data/validation",
+    "weights_path": "model/weights/weights.h5"
+  }
+}
