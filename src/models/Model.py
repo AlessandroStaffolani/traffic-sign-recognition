@@ -103,7 +103,8 @@ class Model:
         self.model = model
         return self.model
 
-    def compile(self, optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'], decay=1e-6, momentum=0.9, nesterov=True):
+    def compile(self, optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'], decay=1e-6, momentum=0.9,
+                nesterov=True):
         sgd = SGD(lr=self.lr, decay=decay, momentum=momentum, nesterov=nesterov)
         self.model.compile(loss=loss, optimizer=sgd, metrics=metrics)
 
@@ -148,16 +149,12 @@ class Model:
                                             verbose)
 
     def auto_save_model(self):
-        model_name = self.name_to_file() + '.json'
-        path = 'model/' + model_name
+        path = 'model/' + self.model_name_mode_now_to_string(True) + '.json'
         print('Saving model to: ' + path)
         self.save_model(path)
 
     def auto_save_weights(self, epochs):
-        weights_name = self.name_to_file() + '_' + str(epochs) + '-epochs'
-        now = strftime("%d-%m-%Y_%H-%M", gmtime())
-        weights_name = weights_name + '_' + now + '.h5'
-        path = 'model/weights/' + weights_name
+        path = 'model/weights/' + self.model_name_mode_now_to_string() + '.h5'
         print('Saving weights to: ' + path)
         self.save_weights(path)
 
@@ -211,7 +208,9 @@ class Model:
             callbacks.append(TensorBoard(log_dir=self.get_tensorboard_name(), write_grads=True,
                                          batch_size=steps_per_epoch, write_images=True))
 
-            callbacks.append(CSVLogger(filename='log/history_' + self.model_name_mode_now_to_string(), separator=',', append=False))
+            callbacks.append(
+                CSVLogger(filename='log/history_' + self.model_name_mode_now_to_string() + '.csv', separator=',',
+                          append=False))
 
             callbacks.append(LearningRateScheduler(lr_schedule))
 
@@ -220,8 +219,11 @@ class Model:
     def name_to_file(self):
         return self.name.replace(' ', '_').lower()
 
-    def model_name_mode_now_to_string(self):
-        now = strftime("%d-%m-%Y_%H-%M", gmtime())
+    def model_name_mode_now_to_string(self, short=False):
+        if short:
+            now = ''
+        else:
+            now = strftime("%d-%m-%Y_%H-%M", gmtime())
         try:
             if self.input_shape[2] == 3:
                 color = 'rgb'
@@ -229,7 +231,7 @@ class Model:
                 color = 'grayscale'
         except IndexError:
             color = 'grayscale'
-        return self.name_to_file() + '-' + color + '-logs-' + str(now)
+        return self.name_to_file() + '-' + color + '-' + str(now)
 
     def get_tensorboard_name(self):
         return 'log/tensorboard-' + self.model_name_mode_now_to_string()
