@@ -331,7 +331,8 @@ class MenuController:
             batch_size = self.batch_size
             image_shape = self.image_shape
 
-        test_generator = DataGenerator(eval_data_folder, batch_size=batch_size, image_shape=(image_shape, image_shape))
+        test_generator = DataGenerator(eval_data_folder, batch_size=batch_size, image_shape=(image_shape, image_shape),
+                                       preprocessing_function=self.pipeline.evaluate)
         if self.model_created is False:
             print('\nModel not initialized, please load a model')
         else:
