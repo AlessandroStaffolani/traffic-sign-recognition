@@ -148,3 +148,4 @@ venv.bak/
 /log-remote/
 /model-remote/
 /stats/
+/config/tmp/

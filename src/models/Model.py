@@ -108,50 +108,23 @@ class Model:
         self.model.compile(loss=loss, optimizer=sgd, metrics=metrics)
 
     def fit(self, train_data, train_labels, validation_split=0.25, epochs=10, batch_size=100):
-        if len(self.callbacks) == 0:
-            callbacks = None
-        else:
-            lr = self.lr
-
-            def lr_schedule(epoch):
-                return lr * (0.1 ** int(epoch / 10))
-
-            callbacks = self.callbacks
-            callbacks.append(TensorBoard(log_dir=self.get_tensorboard_name(), write_grads=True,
-                                         batch_size=batch_size, write_images=True))
-
-            callbacks.append(LearningRateScheduler(lr_schedule))
 
         if self.auto_save:
             self.auto_save_model()
         history = self.model.fit(train_data, train_labels, validation_split=validation_split, epochs=epochs,
-                                 batch_size=batch_size, callbacks=callbacks)
+                                 batch_size=batch_size, callbacks=self.callbacks_pre_fit(int(batch_size)))
         if self.auto_save:
             self.auto_save_weights(epochs)
         return history
 
     def fit_generator(self, generator, steps_per_epoch=1000, epochs=10, validation_data=None, validation_steps=None,
                       workers=1, use_multiprocessing=False, initial_epoch=0):
-        if len(self.callbacks) == 0:
-            callbacks = None
-        else:
-            lr = self.lr
-
-            def lr_schedule(epoch):
-                return lr * (0.1 ** int(epoch / 10))
-
-            callbacks = self.callbacks
-            callbacks.append(TensorBoard(log_dir=self.get_tensorboard_name(), write_grads=True,
-                                         batch_size=steps_per_epoch, write_images=True))
-
-            callbacks.append(LearningRateScheduler(lr_schedule))
-
         if self.auto_save:
             self.auto_save_model()
         history = self.model.fit_generator(generator, steps_per_epoch=int(steps_per_epoch), epochs=int(epochs),
                                            validation_data=validation_data,
                                            validation_steps=validation_steps,
-                                           callbacks=callbacks,
+                                           callbacks=self.callbacks_pre_fit(int(steps_per_epoch)),
                                            workers=workers,
                                            use_multiprocessing=use_multiprocessing,
                                            initial_epoch=initial_epoch)
@@ -225,10 +198,29 @@ class Model:
                 if callback is not None:
                     self.callbacks.append(callback(**callback_table[type]['args']))
 
+    def callbacks_pre_fit(self, steps_per_epoch):
+        if len(self.callbacks) == 0:
+            callbacks = None
+        else:
+            lr = self.lr
+
+            def lr_schedule(epoch):
+                return lr * (0.1 ** int(epoch / 10))
+
+            callbacks = self.callbacks
+            callbacks.append(TensorBoard(log_dir=self.get_tensorboard_name(), write_grads=True,
+                                         batch_size=steps_per_epoch, write_images=True))
+
+            callbacks.append(CSVLogger(filename='log/history_' + self.model_name_mode_now_to_string(), separator=',', append=False))
+
+            callbacks.append(LearningRateScheduler(lr_schedule))
+
+        return callbacks
+
     def name_to_file(self):
         return self.name.replace(' ', '_').lower()
 
-    def get_tensorboard_name(self):
+    def model_name_mode_now_to_string(self):
         now = strftime("%d-%m-%Y_%H-%M", gmtime())
         try:
             if self.input_shape[2] == 3:
@@ -237,7 +229,10 @@ class Model:
                 color = 'grayscale'
         except IndexError:
             color = 'grayscale'
-        return 'log/tensorboard-' + self.name_to_file() + '-' + color + '-logs-' + str(now)
+        return self.name_to_file() + '-' + color + '-logs-' + str(now)
+
+    def get_tensorboard_name(self):
+        return 'log/tensorboard-' + self.model_name_mode_now_to_string()
 
 
 def get_value_if_list_or_int(value, index):
