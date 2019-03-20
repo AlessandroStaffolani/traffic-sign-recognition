@@ -16,7 +16,7 @@
     {
       "actions": [4, 6],
       "color_mode": "grayscale",
-      "models": [0, 1],
+      "models": [0, 1, 2],
       "test_dir": "data/test",
       "train_dir": "data/train",
       "validation_dir": "data/validation"
@@ -24,7 +24,7 @@
     {
       "actions": [4, 6],
       "color_mode": "rgb",
-      "models": [0, 1],
+      "models": [0, 1, 2],
       "test_dir": "data/test",
       "train_dir": "data/train",
       "validation_dir": "data/validation"
@@ -32,7 +32,7 @@
     {
       "actions": [4, 6],
       "color_mode": "grayscale",
-      "models": [0, 1],
+      "models": [0, 1, 2],
       "test_dir": "data/test_roi",
       "train_dir": "data/train_roi",
       "validation_dir": "data/validation_roi"
@@ -40,7 +40,7 @@
     {
       "actions": [4, 6],
       "color_mode": "rgb",
-      "models": [0, 1],
+      "models": [0, 1, 2],
       "test_dir": "data/test_roi",
       "train_dir": "data/train_roi",
       "validation_dir": "data/validation_roi"
