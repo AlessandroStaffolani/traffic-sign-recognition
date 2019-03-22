@@ -16,6 +16,7 @@
     "split_factor": 0.2,
     "test_dir": "data/test",
     "train_dir": "data/train",
+    "use_augmentation": 0,
     "validation_dir": "data/validation",
     "weights_path": "model/weights/weights.h5"
   }

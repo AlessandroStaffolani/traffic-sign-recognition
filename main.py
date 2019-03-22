@@ -25,7 +25,8 @@ def main(args):
                               image_shape=args.image_shape, num_workers=args.n_workers, model_path=args.model_file,
                               weights_path=args.weights_file, color_mode=args.color_mode, split_factor=args.split_factor,
                               n_train_samples=args.n_train_samples, n_validation_samples=args.n_validation_samples,
-                              train_dir=args.train_dir, validation_dir=args.validation_dir, test_dir=args.test_dir)
+                              train_dir=args.train_dir, validation_dir=args.validation_dir, test_dir=args.test_dir,
+                              use_augmentation=args.use_augmentation)
     else:
         # multiple execution in script mode
         multiple = MultipleRunController(args.run_file)
