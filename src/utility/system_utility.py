@@ -94,6 +94,8 @@ def get_arguments():
                         type=str)
     parser.add_argument('--train-dir', help='Location of train images (default: data/train)', default='data/train',
                         type=str)
+    parser.add_argument('--use-augmentation', help='Use augmentation on image dataset (default: 0)', default=0,
+                        type=int, choices=[0, 1])
     parser.add_argument('--validation-dir', help='Location of validation images (default: data/validation)',
                         default='data/validation',
                         type=str)

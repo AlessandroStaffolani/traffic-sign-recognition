@@ -36,6 +36,22 @@
       "test_dir": "data/test_roi",
       "train_dir": "data/train_roi",
       "validation_dir": "data/validation_roi"
+    },
+    {
+      "color_mode": "grayscale",
+      "models": [0, 1, 2],
+      "test_dir": "data/test",
+      "train_dir": "data/train",
+      "use_augmentation": 1,
+      "validation_dir": "data/validation"
+    },
+    {
+      "color_mode": "rgb",
+      "models": [0, 1, 2],
+      "test_dir": "data/test",
+      "train_dir": "data/train",
+      "use_augmentation": 1,
+      "validation_dir": "data/validation"
     }
   ]
 }

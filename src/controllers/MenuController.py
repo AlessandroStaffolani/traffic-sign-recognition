@@ -40,7 +40,8 @@ class MenuController:
                  image_shape=46, num_workers=1, model_path='model/simple_model.json',
                  weights_path='model/weights/weights.h5', color_mode='grayscale',
                  split_factor=0.2, n_train_samples=31367, n_validation_samples=7842, log_folder='log/',
-                 train_dir='data/train', validation_dir='data/validation', test_dir='data/test'):
+                 train_dir='data/train', validation_dir='data/validation', test_dir='data/test',
+                 use_augmentation=False):
         self.labels = get_labels(labels_count)
         self.mode = mode
         self.actions = actions
@@ -59,6 +60,7 @@ class MenuController:
         self.train_dir = train_dir
         self.validation_dir = validation_dir
         self.test_dir = test_dir
+        self.use_augmentation = use_augmentation
         self.model = None
         self.model_created = False
         self.pipeline = Pipeline()
@@ -245,6 +247,7 @@ class MenuController:
             epochs = int(ask_param_with_default('Number of epochs for training', self.epochs))
             image_shape = int(ask_param_with_default(
                 'Dimension of all images, must be the same vertically and horizontally', self.image_shape))
+            use_augmentation = int(ask_param_with_default('Use augmentation on image dataset? (0: False, 1: True', 0))
             workers = int(ask_param_with_default('Number of processes to spin up when using process-based threading',
                                                  self.num_workers))
         else:
@@ -258,20 +261,24 @@ class MenuController:
             batch_size = self.batch_size
             epochs = self.epochs
             image_shape = self.image_shape
+            use_augmentation = self.use_augmentation
             workers = self.num_workers
 
         self.model_code = model_code
         self.color_mode = color_mode
+        use_augmentation = bool(use_augmentation)
 
         start = time()
 
         train_generator = DataGenerator(train_dir, batch_size=batch_size,
                                         image_shape=(image_shape, image_shape),
-                                        preprocessing_function=self.pipeline.evaluate)
+                                        preprocessing_function=self.pipeline.evaluate,
+                                        use_augmentation=use_augmentation)
 
         validation_generator = DataGenerator(validation_dir, batch_size=batch_size,
                                              image_shape=(image_shape, image_shape),
-                                             preprocessing_function=self.pipeline.evaluate)
+                                             preprocessing_function=self.pipeline.evaluate,
+                                             use_augmentation=use_augmentation)
 
         if self.model_created is False:
             self.create_model(image_shape=image_shape)
@@ -324,15 +331,19 @@ class MenuController:
             batch_size = int(ask_param_with_default('Batch size to use for testing', self.batch_size))
             image_shape = int(ask_param_with_default(
                 'Dimension of all images, must be the same vertically and horizontally', self.image_shape))
+            use_augmentation = int(ask_param_with_default('Use augmentation on image dataset? (0: False, 1: True', 0))
         else:
             # Script mode
             eval_data_folder = self.test_dir
             n_test_samples = 12630
             batch_size = self.batch_size
             image_shape = self.image_shape
+            use_augmentation = self.use_augmentation
+
+        use_augmentation = bool(use_augmentation)
 
         test_generator = DataGenerator(eval_data_folder, batch_size=batch_size, image_shape=(image_shape, image_shape),
-                                       preprocessing_function=self.pipeline.evaluate)
+                                       preprocessing_function=self.pipeline.evaluate, use_augmentation=use_augmentation)
         if self.model_created is False:
             print('\nModel not initialized, please load a model')
         else:
