@@ -151,3 +151,4 @@ venv.bak/
 /config/tmp/
 
 *-bk
+/yolo/darknet/
