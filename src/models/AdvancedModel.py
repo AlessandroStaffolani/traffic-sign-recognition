@@ -42,7 +42,7 @@ callback_table = {
 }
 
 
-class SGDModel(Model):
+class AdvancedModel(Model):
 
     def __init__(self, name='SGD Model', auto_save=True, layer_activation='relu', num_output=43,
                  output_activation='softmax', kernel_size=3, input_shape=(46, 46), lr=0.01):
