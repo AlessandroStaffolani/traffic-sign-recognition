@@ -58,6 +58,7 @@ def get_arguments():
             0) Simple Model
             1) SGD Model
             2) Xception Model
+            3) NASNet Mobile Model
     ''')
     parser.add_argument_group()
     parser.add_argument('-a', '--actions', help='set the action or the list of action to execute, check the list below',
@@ -75,7 +76,7 @@ def get_arguments():
                         type=int, default=0, choices=[0, 1])
 
     parser.add_argument('--model-code', help='set the model to be used, check the list below (default: 0)', type=int,
-                        choices=[0, 1, 2], default=0)
+                        choices=[0, 1, 2, 3], default=0)
     parser.add_argument('--model-file',
                         help='path to the model json file that you want load (default: model/model.json)',
                         default='model/simple-model.json', type=str)

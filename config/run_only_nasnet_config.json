@@ -11,35 +11,35 @@
   "instances": [
     {
       "color_mode": "grayscale",
-      "models": [0, 1, 2, 3],
+      "models": [3],
       "test_dir": "data/test",
       "train_dir": "data/train",
       "validation_dir": "data/validation"
     },
     {
       "color_mode": "rgb",
-      "models": [0, 1, 2, 3],
+      "models": [3],
       "test_dir": "data/test",
       "train_dir": "data/train",
       "validation_dir": "data/validation"
     },
     {
       "color_mode": "grayscale",
-      "models": [0, 1, 2, 3],
+      "models": [3],
       "test_dir": "data/test_roi",
       "train_dir": "data/train_roi",
       "validation_dir": "data/validation_roi"
     },
     {
       "color_mode": "rgb",
-      "models": [0, 1, 2, 3],
+      "models": [3],
       "test_dir": "data/test_roi",
       "train_dir": "data/train_roi",
       "validation_dir": "data/validation_roi"
     },
     {
       "color_mode": "grayscale",
-      "models": [0, 1, 2, 3],
+      "models": [3],
       "test_dir": "data/test",
       "train_dir": "data/train",
       "use_augmentation": 1,
@@ -47,7 +47,7 @@
     },
     {
       "color_mode": "rgb",
-      "models": [0, 1, 2, 3],
+      "models": [3],
       "test_dir": "data/test",
       "train_dir": "data/train",
       "use_augmentation": 1,

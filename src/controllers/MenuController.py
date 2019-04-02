@@ -11,8 +11,9 @@ from src.preprocessors.Normalizer import Normalizer
 
 from src.DataGenerator import DataGenerator
 from src.models.Model import Model
-from src.models.SGDModel import SGDModel
+from src.models.AdvancedModel import AdvancedModel
 from src.models.Xception import Xception
+from src.models.NASNetMobile import NASNetMobile
 from src.Pipeline import Pipeline
 
 ACTIONS = {
@@ -29,8 +30,9 @@ ACTIONS = {
 
 MODELS = {
     0: Model,  # simple model
-    1: SGDModel,  # more complex model using SGD optimizer
+    1: AdvancedModel,  # more complex model using SGD optimizer
     2: Xception,  # model coming from keras application models
+    3: NASNetMobile  # model coming from keras application models
 }
 
 
@@ -237,7 +239,7 @@ class MenuController:
     def train_all_images(self):
         if self.mode == 0:
             # Intercative mode
-            model_code = str(ask_param_with_default('Model to be used from these: ' + str(MODELS), self.model_code))
+            model_code = int(ask_param_with_default('Model to be used from these: ' + str(MODELS), self.model_code))
             color_mode = str(ask_param_with_default('Use grayscale or RGB images? possible values: grayscale, rgb', self.color_mode))
             train_dir = ask_param_with_default('Training images data dir', self.train_dir)
             n_train_samples = int(ask_param_with_default('Number of training samples ', self.n_train_samples))
