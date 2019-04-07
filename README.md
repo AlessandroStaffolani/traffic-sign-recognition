@@ -9,8 +9,8 @@ The project main task is to classify the traffic sign images which come from the
 
 ## 1) Classification application
 This python application can be executed in two different ways: 
-1. **interactive mode** (-m 0): application will start with an interactive menu that can be used to execute an action and after that action, ask for the next one.
-2. **script mode** (-m 1 -a [actions]): application will execute a sequence of actions and at the end will stop the execution
+1. **interactive mode** (-m 0): the application will start with an interactive menu, which can be used to execute an action and, after that action, ask for the next one.
+2. **script mode** (-m 1 -a [actions]): the application will execute a sequence of actions and, at the end, will stop the execution
 
 ### Possible actions
 | **CODE** | **DESCRIPTION**                        |
