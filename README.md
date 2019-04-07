@@ -24,7 +24,9 @@ This python application can be executed in two different ways:
 |     6    | Test model performance                 |
 
 
-default value is `-m 0
+default value is `-m 0`
+
+To see the full list of possible arguments type `-h` or `--help`
 
 
 ### Installation
