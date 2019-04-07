@@ -5,7 +5,7 @@ The aim of this project is to create an image classificator capable of reconizin
 
 The dataset comes from the famous German traffic sign benchmark [[link](http://benchmark.ini.rub.de/)] that provides more than 50 000 images relative to 43 different classes.
 
-The project main task is to classify the traffic sign images which come from the dataset. These images contain only the ROI (Region of Interest) and some pixel as contour. To achive this target I will use a Convolution Neural Network (CNN).
+The project main task is to classify the traffic sign images which come from the dataset. These images contain only the ROI (Region of Interest) and some pixel as contour. To achieve this target I will use a Convolution Neural Network (CNN).
 
 ## 1) Classification application
 This python application can be executed in two different ways: 
